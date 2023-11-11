@@ -53,7 +53,7 @@ class ChooseScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) =>
-                        ObjectGesturesWidgetWeb_glb(),
+                        const ObjectGesturesWidgetWeb_glb(),
                   ),
                 );
               },
@@ -83,7 +83,7 @@ class ChooseScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute<void>(
                     builder: (BuildContext context) =>
-                        ObjectGesturesWidgetLocal_gltf(),
+                        const ObjectGesturesWidgetLocal_gltf(),
                   ),
                 );
               },

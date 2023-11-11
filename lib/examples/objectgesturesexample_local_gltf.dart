@@ -15,7 +15,7 @@ import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
 import 'package:vector_math/vector_math_64.dart';
 
 class ObjectGesturesWidgetLocal_gltf extends StatefulWidget {
-  ObjectGesturesWidgetLocal_gltf({Key? key}) : super(key: key);
+  const ObjectGesturesWidgetLocal_gltf({super.key});
   @override
   _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
 }
@@ -93,9 +93,9 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocal_gltf> w
     /*nodes.forEach((node) {
       this.arObjectManager.removeNode(node);
     });*/
-    anchors.forEach((anchor) {
+    for (var anchor in anchors) {
       arAnchorManager!.removeAnchor(anchor);
-    });
+    }
     anchors = [];
   }
 
@@ -104,32 +104,30 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocal_gltf> w
     log('onPlaneOrPointTapped');
     var singleHitTestResult = hitTestResults.firstWhere(
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
-    if (singleHitTestResult != null) {
-      var newAnchor =
-          ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
-      bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
-      if (didAddAnchor!) {
-        anchors.add(newAnchor);
-        // Add note to anchor
-        var newNode = ARNode(
+    var newAnchor =
+        ARPlaneAnchor(transformation: singleHitTestResult.worldTransform);
+    bool? didAddAnchor = await arAnchorManager!.addAnchor(newAnchor);
+    if (didAddAnchor!) {
+      anchors.add(newAnchor);
+      // Add note to anchor
+      var newNode = ARNode(
 
-            type: NodeType.localGLTF2,
-            uri:"assets/Chicken_01/Chicken_01.gltf",
-            scale: Vector3(0.2, 0.2, 0.2),
-            position: Vector3(0.0, 0.0, 0.0),
-            rotation: Vector4(1.0, 0.0, 0.0, 0.0));
-        bool? didAddNodeToAnchor =
-            await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
-        if (didAddNodeToAnchor!) {
-          nodes.add(newNode);
-        } else {
-          arSessionManager!.onError("Adding Node to Anchor failed");
-        }
+          type: NodeType.localGLTF2,
+          uri:"assets/Chicken_01/Chicken_01.gltf",
+          scale: Vector3(0.2, 0.2, 0.2),
+          position: Vector3(0.0, 0.0, 0.0),
+          rotation: Vector4(1.0, 0.0, 0.0, 0.0));
+      bool? didAddNodeToAnchor =
+          await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
+      if (didAddNodeToAnchor!) {
+        nodes.add(newNode);
       } else {
-        arSessionManager!.onError("Adding Anchor failed");
+        arSessionManager!.onError("Adding Node to Anchor failed");
       }
+    } else {
+      arSessionManager!.onError("Adding Anchor failed");
     }
-  }
+    }
 
   dynamic globalNodeName;
 
