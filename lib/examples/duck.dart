@@ -1,26 +1,27 @@
 import 'dart:developer';
 
-import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
-import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
-import 'package:ar_flutter_plugin/models/ar_anchor.dart';
-import 'package:flutter/material.dart';
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
-import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
-import 'package:ar_flutter_plugin/models/ar_node.dart';
+import 'package:ar_flutter_plugin/datatypes/node_types.dart';
+import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
+import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
+import 'package:ar_flutter_plugin/models/ar_anchor.dart';
 import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
+import 'package:ar_flutter_plugin/models/ar_node.dart';
+import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart';
 
-class ObjectGesturesWidgetWeb_glb extends StatefulWidget {
-  const ObjectGesturesWidgetWeb_glb({super.key});
+class Pato extends StatefulWidget {
+  const Pato({super.key});
   @override
   _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
 }
 
-class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with TickerProviderStateMixin {
+class _ObjectGesturesWidgetState extends State<Pato>
+    with TickerProviderStateMixin {
   ARSessionManager? arSessionManager;
   ARObjectManager? arObjectManager;
   ARAnchorManager? arAnchorManager;
@@ -40,8 +41,7 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
         appBar: AppBar(
           title: const Text('Object Transformation Gestures'),
         ),
-        body: Container(
-            child: Stack(children: [
+        body: Stack(children: [
           ARView(
             onARViewCreated: onARViewCreated,
             planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
@@ -54,14 +54,12 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
                   ElevatedButton(
                       onPressed: onRemoveEverything,
                       child: const Text("Remove Everything")),
-
                   ElevatedButton(
                       onPressed: removeOne,
                       child: const Text("Remove when tap")),
-
                 ]),
           )
-        ])));
+        ]));
   }
 
   void onARViewCreated(
@@ -77,7 +75,7 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
           showFeaturePoints: false,
           showPlanes: true,
           customPlaneTexturePath: "assets/triangle.png",
-          showWorldOrigin: false,
+          showWorldOrigin: true,
           handlePans: true,
           handleRotation: true,
         );
@@ -112,10 +110,8 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
       anchors.add(newAnchor);
       // Add note to anchor
       var newNode = ARNode(
-
-          type: NodeType.webGLB,
-          uri:
-              "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
+          type: NodeType.localGLTF2,
+          uri: "assets/Chicken_01/Chicken_01.gltf",
           scale: Vector3(0.2, 0.2, 0.2),
           position: Vector3(0.0, 0.0, 0.0),
           rotation: Vector4(1.0, 0.0, 0.0, 0.0));
@@ -129,7 +125,7 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
     } else {
       arSessionManager!.onError("Adding Anchor failed");
     }
-    }
+  }
 
   dynamic globalNodeName;
 
@@ -144,16 +140,16 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
     globalNodeName = nodeName.first;
   }
 
-  removeOne(){
+  removeOne() {
     final pannedNode =
-    nodes.indexWhere((element) => element.name == globalNodeName);
+        nodes.indexWhere((element) => element.name == globalNodeName);
     ARAnchor anchorsRemove = anchors.removeAt(pannedNode);
-      arAnchorManager!.removeAnchor(anchorsRemove);
+    arAnchorManager!.removeAnchor(anchorsRemove);
   }
 
-  increaseOne(){
+  increaseOne() {
     final pannedNode =
-    nodes.firstWhere((element) => element.name == globalNodeName);
+        nodes.firstWhere((element) => element.name == globalNodeName);
     // pannedNode.scale = Vector3(0.2, 0.2, 0.2);
     // AnimationController _controller =
     //     AnimationController(vsync: this, duration: const Duration(seconds: 1));
@@ -162,7 +158,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
     // pannedNode.transform = Matrix4.identity()..rotateX(_animation.value);
     // pannedNode.transform = Matrix4.identity()..rotateY(_animation.value);
     // pannedNode.transform = Matrix4.identity()..rotateZ(_animation.value);
-
   }
 
   onPanChanged(String nodeName) {
@@ -173,7 +168,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetWeb_glb> with
 
   onPanEnded(String nodeName, Matrix4 newTransform) {
     log("Ended panning node $nodeName");
-    final pannedNode =
-        nodes.firstWhere((element) => element.name == nodeName);
+    final pannedNode = nodes.firstWhere((element) => element.name == nodeName);
   }
 }

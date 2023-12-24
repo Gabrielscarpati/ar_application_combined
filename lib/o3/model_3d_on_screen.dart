@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:o3d/o3d.dart';
 
@@ -32,10 +31,10 @@ class _Model3DScreen extends State<Model3DScreen> {
       ),
       body: O3D(
         controller: controller,
-        src: 'assets/glb/jeff_johansen_idle.glb',
+        src: 'assets/glb/Duck.glb',
         disableZoom: true,
         disablePan: true,
-        withCredentials:false,
+        withCredentials: false,
         // bool? disablePan,
         // disableTap : true,
       ),
