@@ -31,7 +31,7 @@ class _Model3DScreen extends State<Model3DScreen> {
       ),
       body: O3D(
         controller: controller,
-        src: 'assets/glb/Duck.glb',
+        src: 'assets/glb/jeff_johansen_idle.glb',
         disableZoom: true,
         disablePan: true,
         withCredentials: false,
