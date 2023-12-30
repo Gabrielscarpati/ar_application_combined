@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
@@ -15,14 +16,13 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vectorMath;
 
-class ObjectGesturesWidgetLocalGltf extends StatefulWidget {
-  const ObjectGesturesWidgetLocalGltf({super.key});
+class Engine extends StatefulWidget {
+  const Engine({super.key});
   @override
-  _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
+  _Engine createState() => _Engine();
 }
 
-class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
-    with TickerProviderStateMixin {
+class _Engine extends State<Engine> with TickerProviderStateMixin {
   ARSessionManager? arSessionManager;
   ARObjectManager? arObjectManager;
   ARAnchorManager? arAnchorManager;
@@ -51,16 +51,17 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
     super.initState();
   }
 
+  Map<String, double> nodeRotations = {};
+
   bool isLongPressActive = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Oobject Transformation Gestures'),
+        title: const Text('Object Display'),
       ),
       body: GestureDetector(
-        //taps, long-presses, double-taps, pans, scales, vertical and horizontal drags, and many more.
         onLongPress: () {
           setState(() {
             isLongPressActive = !isLongPressActive;
@@ -98,7 +99,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
             }
           }
         },
-
         onScaleEnd: (ScaleEndDetails scaleEndDetails) {
           if (scaleEndDetails.pointerCount != 1) {
             initialScale = currentScale;
@@ -113,15 +113,25 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
             Align(
               alignment: FractionalOffset.centerRight,
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ActionButtons(
-                    onTap: removeAnObject,
+                    onTap: () {
+                      removeAnObject();
+                    },
                     icon: Icons.delete,
                   ),
                   ActionButtons(
-                    onTap: removeAnObject,
+                    onTap: () {
+                      rotate90degreesLeft();
+                    },
                     icon: Icons.rotate_90_degrees_ccw,
+                  ),
+                  ActionButtons(
+                    onTap: () {
+                      rotate90degreesRight();
+                    },
+                    icon: Icons.rotate_90_degrees_cw,
                   ),
                 ],
               ),
@@ -145,16 +155,13 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
           showFeaturePoints: false,
           showPlanes: true,
           customPlaneTexturePath: "assets/triangle.png",
-          showWorldOrigin: true,
+          showWorldOrigin: false,
           handlePans: true,
           handleRotation: true,
         );
 
     this.arObjectManager!.onInitialize();
     this.arSessionManager!.onPlaneOrPointTap = onPlaneOrPointTapped;
-    this.arObjectManager!.onPanStart = onPanStarted;
-    this.arObjectManager!.onPanChange = onPanChanged;
-    this.arObjectManager!.onPanEnd = onPanEnded;
     this.arObjectManager!.onNodeTap = onNodeTap;
   }
 
@@ -175,8 +182,9 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
     if (didAddAnchor!) {
       anchors.add(newAnchor);
       var newNode = ARNode(
-          type: NodeType.localGLTF2,
-          uri: "assets/Chicken_01/Chicken_01.gltf",
+          type: NodeType.webGLB,
+          uri:
+              'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/2CylinderEngine/glTF-Binary/2CylinderEngine.glb',
           scale: vectorMath.Vector3(0.2, 0.2, 0.2),
           position: vectorMath.Vector3(0.0, 0.0, 0.0),
           rotation: vectorMath.Vector4(1.0, 0.0, 0.0, 0.0));
@@ -194,11 +202,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
 
   dynamic globalNodeName;
 
-  void onPanStarted(String nodeName) {
-    log('onPanStarted');
-    log("Started panning node $nodeName");
-  }
-
   void onNodeTap(List nodeName) {
     log('onNodeTap');
     globalNodeName = nodeName.first;
@@ -211,10 +214,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
       ARAnchor anchorsRemove = anchors.removeAt(pannedNode);
       arAnchorManager!.removeAnchor(anchorsRemove);
     }
-  }
-
-  void onPanChanged(String nodeName) {
-    log("Continued panning node $nodeName");
   }
 
   void changeObjectsPosition(double initialXValue, double finalXValue,
@@ -243,6 +242,36 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
     }
   }
 
+  void rotate90degreesLeft() {
+    if (nodes.isNotEmpty) {
+      final rotatedNode =
+          nodes.firstWhere((element) => element.name == globalNodeName);
+      double currentRotation = nodeRotations[rotatedNode.name] ?? 0.0;
+      double nextRotation = (currentRotation - math.pi / 2) % (2 * math.pi);
+      nodeRotations[rotatedNode.name] = nextRotation;
+
+      vectorMath.Matrix3 rotationMatrix =
+          vectorMath.Matrix3.rotationY(nextRotation);
+
+      rotatedNode.rotation = rotationMatrix;
+    }
+  }
+
+  void rotate90degreesRight() {
+    if (nodes.isNotEmpty) {
+      final rotatedNode =
+          nodes.firstWhere((element) => element.name == globalNodeName);
+      double currentRotation = nodeRotations[rotatedNode.name] ?? 0.0;
+      double nextRotation = (currentRotation + math.pi / 2) % (2 * math.pi);
+      nodeRotations[rotatedNode.name] = nextRotation;
+
+      vectorMath.Matrix3 rotationMatrix =
+          vectorMath.Matrix3.rotationY(nextRotation);
+
+      rotatedNode.rotation = rotationMatrix;
+    }
+  }
+
   void rotateHorizontallyYaxis(double initialYValue, double finalYValue) {
     if (initialYValue > finalYValue) {
       displacementInX = displacementInX! + .04;
@@ -265,11 +294,6 @@ class _ObjectGesturesWidgetState extends State<ObjectGesturesWidgetLocalGltf>
           vectorMath.Vector3(currentScale, currentScale, currentScale);
     }
   }
-
-  onPanEnded(String nodeName, Matrix4 newTransform) {
-    log("Ended panning node $nodeName");
-    final pannedNode = nodes.firstWhere((element) => element.name == nodeName);
-  }
 }
 
 class ActionButtons extends StatelessWidget {
@@ -279,16 +303,21 @@ class ActionButtons extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton(
-      onPressed: onTap.call(),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-        padding: const EdgeInsets.all(16.0),
-      ),
-      child: Icon(
-        icon,
-        size: 28.0,
-        color: Colors.white,
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: ElevatedButton(
+        onPressed: () {
+          onTap();
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          padding: const EdgeInsets.all(16.0),
+        ),
+        child: Icon(
+          icon,
+          size: 28.0,
+          color: Colors.white,
+        ),
       ),
     );
   }

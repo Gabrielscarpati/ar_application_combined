@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'examples/duck.dart';
-import 'examples/objectgesturesexample_local_gltf.dart';
+import 'examples/chicken.dart';
+import 'examples/engine.dart';
 
 class ChooseScreen extends StatelessWidget {
   const ChooseScreen({super.key});
@@ -20,8 +20,7 @@ class ChooseScreen extends StatelessWidget {
                 Navigator.push<void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) =>
-                        const ObjectGesturesWidgetLocalGltf(),
+                    builder: (BuildContext context) => const Chicken(),
                   ),
                 );
               },
@@ -33,7 +32,7 @@ class ChooseScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
-                  'Object Transformation Gestures Local_gltf',
+                  'Chicken',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
@@ -47,7 +46,7 @@ class ChooseScreen extends StatelessWidget {
                 Navigator.push<void>(
                   context,
                   MaterialPageRoute<void>(
-                    builder: (BuildContext context) => const Pato(),
+                    builder: (BuildContext context) => const Engine(),
                   ),
                 );
               },
@@ -59,7 +58,7 @@ class ChooseScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: const Text(
-                  'Pato',
+                  'Engine',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
