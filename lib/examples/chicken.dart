@@ -88,7 +88,7 @@ class _ObjectGesturesWidgetState extends State<Chicken>
               setState(() {
                 currentScale = initialScale * scaleDetails.scale;
                 if (nodes.isNotEmpty) {
-                  pinchZoom();
+                  pinchResize();
                 }
               });
             } else {
@@ -236,8 +236,7 @@ class _ObjectGesturesWidgetState extends State<Chicken>
       draggedNode.position = vectorMath.Vector3(
         draggedNode.position.x = positionChangedInX!,
         draggedNode.position.y,
-        draggedNode.position.z =
-            positionChangedInY!, // x and y because of the way the axis are disposed in the scene
+        draggedNode.position.z = positionChangedInY!,
       );
     }
   }
@@ -286,7 +285,7 @@ class _ObjectGesturesWidgetState extends State<Chicken>
     }
   }
 
-  void pinchZoom() {
+  void pinchResize() {
     if (nodes.isNotEmpty) {
       final pannedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);
