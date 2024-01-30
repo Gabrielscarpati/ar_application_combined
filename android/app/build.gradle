@@ -50,7 +50,6 @@ android {
             signingConfig signingConfigs.debug
             shrinkResources false
             minifyEnabled false
-            signingConfig signingConfigs.release
         }
     }
 }

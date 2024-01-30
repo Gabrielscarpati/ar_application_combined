@@ -16,13 +16,17 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vectorMath;
 
-class Engine extends StatefulWidget {
-  const Engine({super.key});
+class ArViewMobile extends StatefulWidget {
+  final bool isLocalStorage;
+  final String imagePath;
+  const ArViewMobile(
+      {super.key, required this.isLocalStorage, required this.imagePath});
   @override
-  _Engine createState() => _Engine();
+  _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
 }
 
-class _Engine extends State<Engine> with TickerProviderStateMixin {
+class _ObjectGesturesWidgetState extends State<ArViewMobile>
+    with TickerProviderStateMixin {
   ARSessionManager? arSessionManager;
   ARObjectManager? arObjectManager;
   ARAnchorManager? arAnchorManager;
@@ -87,7 +91,7 @@ class _Engine extends State<Engine> with TickerProviderStateMixin {
               setState(() {
                 currentScale = initialScale * scaleDetails.scale;
                 if (nodes.isNotEmpty) {
-                  pinchZoom();
+                  pinchResize();
                 }
               });
             } else {
@@ -182,9 +186,8 @@ class _Engine extends State<Engine> with TickerProviderStateMixin {
     if (didAddAnchor!) {
       anchors.add(newAnchor);
       var newNode = ARNode(
-          type: NodeType.webGLB,
-          uri:
-              'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/2CylinderEngine/glTF-Binary/2CylinderEngine.glb',
+          type: widget.isLocalStorage ? NodeType.localGLTF2 : NodeType.webGLB,
+          uri: widget.imagePath,
           scale: vectorMath.Vector3(0.2, 0.2, 0.2),
           position: vectorMath.Vector3(0.0, 0.0, 0.0),
           rotation: vectorMath.Vector4(1.0, 0.0, 0.0, 0.0));
@@ -236,8 +239,7 @@ class _Engine extends State<Engine> with TickerProviderStateMixin {
       draggedNode.position = vectorMath.Vector3(
         draggedNode.position.x = positionChangedInX!,
         draggedNode.position.y,
-        draggedNode.position.z =
-            positionChangedInY!, // x and y because of the way the axis are disposed in the scene
+        draggedNode.position.z = positionChangedInY!,
       );
     }
   }
@@ -286,7 +288,7 @@ class _Engine extends State<Engine> with TickerProviderStateMixin {
     }
   }
 
-  void pinchZoom() {
+  void pinchResize() {
     if (nodes.isNotEmpty) {
       final pannedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);

@@ -1,10 +1,16 @@
+//import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'dart:html' as html;
+import 'dart:ui_web' as dart_ui_web;
+
+// ignore:undefined_prefixed_name
 
 import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_location_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_object_manager.dart';
 import 'package:ar_flutter_plugin/managers/ar_session_manager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -19,24 +25,25 @@ typedef ARViewCreatedCallback = void Function(
 /// Factory method for creating a platform-dependent AR view
 abstract class PlatformARView {
   factory PlatformARView(TargetPlatform platform) {
-    print("Platform supported");
-    switch (platform) {
-      case TargetPlatform.android:
-        return AndroidARView();
-      case TargetPlatform.iOS:
-        return IosARView();
-      default:
-        print("Platform not supported");
-        throw IosARView();
+    if (kIsWeb) {
+      return WebARView();
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      return AndroidARView();
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return IosARView();
+    } else {
+      throw UnsupportedError('ARView is not supported on this platform.');
     }
   }
 
-  Widget build(
-      {@required BuildContext context,
-      @required ARViewCreatedCallback arViewCreatedCallback,
-      @required PlaneDetectionConfig planeDetectionConfig});
+  PlatformARView._(); // Private constructor to prevent direct instantiation
 
-  /// Callback function that is executed once the view is established
+  Widget build({
+    @required BuildContext context,
+    @required ARViewCreatedCallback arViewCreatedCallback,
+    @required PlaneDetectionConfig planeDetectionConfig,
+  });
+
   void onPlatformViewCreated(int id);
 }
 
@@ -53,6 +60,50 @@ createManagers(
   }
   arViewCreatedCallback(ARSessionManager(id, context, planeDetectionConfig),
       ARObjectManager(id), ARAnchorManager(id), ARLocationManager());
+}
+
+/// Android-specific implementation of [PlatformARView]
+/// Uses Hybrid Composition to increase peformance on Android 9 and below (https://flutter.dev/docs/development/platform-integration/platform-views)
+
+class WebARView implements PlatformARView {
+  late BuildContext? _context;
+  late ARViewCreatedCallback? _arViewCreatedCallback;
+  late PlaneDetectionConfig? _planeDetectionConfig;
+
+  @override
+  void onPlatformViewCreated(int id) {
+    print("Browser platform view created!");
+    createManagers(id, _context, _arViewCreatedCallback, _planeDetectionConfig);
+  }
+
+  @override
+  Widget build(
+      {BuildContext? context,
+      ARViewCreatedCallback? arViewCreatedCallback,
+      PlaneDetectionConfig? planeDetectionConfig}) {
+    _context = context;
+    _arViewCreatedCallback = arViewCreatedCallback;
+    _planeDetectionConfig = planeDetectionConfig;
+    // This is used in the platform side to register the view.
+    final String viewType = 'ar_flutter_plugin';
+    // Pass parameters to the platform side.
+    final Map<String, dynamic> creationParams = <String, dynamic>{};
+    dart_ui_web.platformViewRegistry.registerViewFactory(
+      'ar_flutter_plugin',
+      (int viewId) => html.DivElement()
+        ..id = 'ar_flutter_plugin-$viewId'
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.border = 'none',
+    );
+    return HtmlElementView(
+      viewType: viewType,
+      //layoutDirection: TextDirection.ltr,
+      creationParams: creationParams,
+      //creationParamsCodec: const StandardMessageCodec(),
+      onPlatformViewCreated: onPlatformViewCreated,
+    );
+  }
 }
 
 /// Android-specific implementation of [PlatformARView]
@@ -190,33 +241,19 @@ class _ARViewState extends State<ARView> {
   }
 
   requestCameraPermission() async {
-    /* RaisedButton(
-      child: Text("Request permission"),
-      onPressed: () async {
-        final perm = await html.window.navigator.permissions.query({"name": "camera"});
-        if (perm.state == "denied") {
-          Scaffold.of(context).showSnackBar(SnackBar(
-            content: Text("Oops! Camera access denied!"),
-            backgroundColor: Colors.orangeAccent,
-          ));
-          return;
-        }
-        final stream = await html.window.navigator.getUserMedia(video: true);
-        // ...
-      },
-    ),*/
-    final perm =
-        await html.window.navigator.permissions?.query({"name": "camera"});
-    if (perm?.state != "denied") {
-      //Scaffold.of(context).showSnackBar(SnackBar(
-      final stream = await html.window.navigator.getUserMedia(
-        video: true,
-      );
-      setState(() {
-        _cameraPermission = PermissionStatus.granted;
-      });
+    if (kIsWeb) {
+      final perm =
+          await html.window.navigator.permissions?.query({"name": "camera"});
+      if (perm?.state != "denied") {
+        //Scaffold.of(context).showSnackBar(SnackBar(
+        final stream = await html.window.navigator.getUserMedia(
+          video: true,
+        );
+        setState(() {
+          _cameraPermission = PermissionStatus.granted;
+        });
+      }
     }
-
     final cameraPermission = await Permission.camera.request();
     setState(() {
       _cameraPermission = cameraPermission;
