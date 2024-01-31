@@ -2,8 +2,6 @@ import 'dart:async';
 import 'dart:developer';
 import 'dart:math' as math;
 
-import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
-import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
 import 'package:ar_flutter_plugin/datatypes/node_types.dart';
 import 'package:ar_flutter_plugin/managers/ar_anchor_manager.dart';
@@ -16,29 +14,13 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vectorMath;
 
-class ArViewMobile extends StatefulWidget {
-  final bool isLocalStorage;
-  final String imagePath;
-  const ArViewMobile(
-      {super.key, required this.isLocalStorage, required this.imagePath});
-  @override
-  _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
-}
-
-class _ObjectGesturesWidgetState extends State<ArViewMobile>
-    with TickerProviderStateMixin {
+class ArViewProvider with ChangeNotifier {
   ARSessionManager? arSessionManager;
   ARObjectManager? arObjectManager;
   ARAnchorManager? arAnchorManager;
 
   List<ARNode> nodes = [];
   List<ARAnchor> anchors = [];
-
-  @override
-  void dispose() {
-    super.dispose();
-    arSessionManager!.dispose();
-  }
 
   double initialScale = 0.2;
   double currentScale = 0.2;
@@ -47,103 +29,68 @@ class _ObjectGesturesWidgetState extends State<ArViewMobile>
   double? displacementInX;
   double? positionChangedInX;
   double? positionChangedInY;
-  @override
-  void initState() {
-    displacementInX = 0.02;
-    positionChangedInX = 0.0;
-    positionChangedInY = 0.0;
-    super.initState();
-  }
 
   Map<String, double> nodeRotations = {};
 
   bool isLongPressActive = false;
+  dynamic globalNodeName = "";
+  String current3dModelUrl = '';
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Object Display'),
-      ),
-      body: GestureDetector(
-        onLongPress: () {
-          setState(() {
-            isLongPressActive = !isLongPressActive;
-          });
-        },
-        onScaleStart: (ScaleStartDetails scaleStartDetails) {
-          if (scaleStartDetails.pointerCount != 1) {
-            initialScale = currentScale;
-          }
-        },
-        onScaleUpdate: (ScaleUpdateDetails scaleDetails) {
-          if (isLongPressActive) {
-            setState(() {
-              changeObjectsPosition(
-                  currentFocalPoint.dx,
-                  scaleDetails.focalPoint.dx,
-                  currentFocalPoint.dy,
-                  scaleDetails.focalPoint.dy);
-              currentFocalPoint = scaleDetails.focalPoint;
-            });
-          } else {
-            if (scaleDetails.scale != 1.0) {
-              setState(() {
-                currentScale = initialScale * scaleDetails.scale;
-                if (nodes.isNotEmpty) {
-                  pinchResize();
-                }
-              });
-            } else {
-              setState(() {
-                rotateHorizontallyYaxis(
-                    currentFocalPoint.dx, scaleDetails.focalPoint.dx);
-                currentFocalPoint = scaleDetails.focalPoint;
-              });
-            }
-          }
-        },
-        onScaleEnd: (ScaleEndDetails scaleEndDetails) {
-          if (scaleEndDetails.pointerCount != 1) {
-            initialScale = currentScale;
-          }
-        },
-        child: Stack(
-          children: [
-            ARView(
-              onARViewCreated: onARViewCreated,
-              planeDetectionConfig: PlaneDetectionConfig.horizontalAndVertical,
-            ),
-            Align(
-              alignment: FractionalOffset.centerRight,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ActionButtons(
-                    onTap: () {
-                      removeAnObject();
-                    },
-                    icon: Icons.delete,
-                  ),
-                  ActionButtons(
-                    onTap: () {
-                      rotate90degreesLeft();
-                    },
-                    icon: Icons.rotate_90_degrees_ccw,
-                  ),
-                  ActionButtons(
-                    onTap: () {
-                      rotate90degreesRight();
-                    },
-                    icon: Icons.rotate_90_degrees_cw,
-                  ),
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+  void onLongPress(BuildContext context) {
+    isLongPressActive = !isLongPressActive;
+
+    Future.microtask(() {
+      notifyListeners();
+    });
+  }
+
+  void onScaleStart(ScaleStartDetails scaleStartDetails) {
+    if (scaleStartDetails.pointerCount != 1) {
+      initialScale = currentScale;
+    }
+  }
+
+  void onScaleUpdate(ScaleUpdateDetails scaleDetails, BuildContext context) {
+    if (isLongPressActive) {
+      changeObjectsPosition(currentFocalPoint.dx, scaleDetails.focalPoint.dx,
+          currentFocalPoint.dy, scaleDetails.focalPoint.dy);
+      currentFocalPoint = scaleDetails.focalPoint;
+      Future.microtask(() {
+        notifyListeners();
+      });
+    } else {
+      if (scaleDetails.scale != 1.0) {
+        currentScale = initialScale * scaleDetails.scale;
+        if (nodes.isNotEmpty) {
+          pinchResize();
+        }
+        Future.microtask(() {
+          notifyListeners();
+        });
+      } else {
+        rotateHorizontallyYaxis(
+            currentFocalPoint.dx, scaleDetails.focalPoint.dx);
+        currentFocalPoint = scaleDetails.focalPoint;
+        Future.microtask(() {
+          notifyListeners();
+        });
+      }
+    }
+  }
+
+  void onScaleEnd(ScaleEndDetails scaleEndDetails) {
+    if (scaleEndDetails.pointerCount != 1) {
+      initialScale = currentScale;
+    }
+  }
+
+  void setCurrent3dModelUrl(String url, BuildContext context) {
+    current3dModelUrl = url;
+    print('aaaaaaaaaa' + current3dModelUrl);
+
+    Future.microtask(() {
+      notifyListeners();
+    });
   }
 
   void onARViewCreated(
@@ -178,6 +125,8 @@ class _ObjectGesturesWidgetState extends State<ArViewMobile>
 
   Future<void> onPlaneOrPointTapped(
       List<ARHitTestResult> hitTestResults) async {
+    print('bbbbbbbbbbbb' + current3dModelUrl);
+
     var singleHitTestResult = hitTestResults.firstWhere(
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
     var newAnchor =
@@ -186,8 +135,8 @@ class _ObjectGesturesWidgetState extends State<ArViewMobile>
     if (didAddAnchor!) {
       anchors.add(newAnchor);
       var newNode = ARNode(
-          type: widget.isLocalStorage ? NodeType.localGLTF2 : NodeType.webGLB,
-          uri: widget.imagePath,
+          type: NodeType.webGLB,
+          uri: current3dModelUrl,
           scale: vectorMath.Vector3(0.2, 0.2, 0.2),
           position: vectorMath.Vector3(0.0, 0.0, 0.0),
           rotation: vectorMath.Vector4(1.0, 0.0, 0.0, 0.0));
@@ -203,11 +152,9 @@ class _ObjectGesturesWidgetState extends State<ArViewMobile>
     }
   }
 
-  dynamic globalNodeName;
-
   void onNodeTap(List nodeName) {
     log('onNodeTap');
-    globalNodeName = nodeName.first;
+    // Your implementation
   }
 
   void removeAnObject() {
@@ -295,32 +242,5 @@ class _ObjectGesturesWidgetState extends State<ArViewMobile>
       pannedNode.scale =
           vectorMath.Vector3(currentScale, currentScale, currentScale);
     }
-  }
-}
-
-class ActionButtons extends StatelessWidget {
-  final Function onTap;
-  final IconData icon;
-  const ActionButtons({super.key, required this.onTap, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          onTap();
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue,
-          padding: const EdgeInsets.all(16.0),
-        ),
-        child: Icon(
-          icon,
-          size: 28.0,
-          color: Colors.white,
-        ),
-      ),
-    );
   }
 }
