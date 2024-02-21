@@ -10,27 +10,22 @@ import 'ar_bottom_sheet.dart';
 
 class ArViewMobile extends StatefulWidget {
   final bool isLocalStorage;
-  final String imagePath;
-  const ArViewMobile(
-      {super.key, required this.isLocalStorage, required this.imagePath});
+  const ArViewMobile({
+    super.key,
+    required this.isLocalStorage,
+  });
   @override
   _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
 }
 
 class _ObjectGesturesWidgetState extends State<ArViewMobile>
     with TickerProviderStateMixin {
-/*  void initState() {
-    displacementInX = 0.02;
-    positionChangedInX = 0.0;
-    positionChangedInY = 0.0;
-    super.initState();
-  }*/
-
   @override
   Widget build(BuildContext context) {
     ArViewProvider arViewProvider = context.watch<ArViewProvider>();
     BottomSheetProvider bottomSheetProvider =
         context.watch<BottomSheetProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Object Display'),

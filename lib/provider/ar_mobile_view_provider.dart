@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:ar_flutter_plugin/datatypes/hittest_result_types.dart';
@@ -14,6 +13,8 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math_64.dart' as vectorMath;
 
+import '../widgets/custom_snackbar.dart';
+
 class ArViewProvider with ChangeNotifier {
   ARSessionManager? arSessionManager;
   ARObjectManager? arObjectManager;
@@ -26,9 +27,9 @@ class ArViewProvider with ChangeNotifier {
   double currentScale = 0.2;
   Offset currentFocalPoint = const Offset(0, 0);
 
-  double? displacementInX;
-  double? positionChangedInX;
-  double? positionChangedInY;
+  double displacementInX = 0;
+  double positionChangedInX = 0;
+  double positionChangedInY = 0;
 
   Map<String, double> nodeRotations = {};
 
@@ -84,10 +85,8 @@ class ArViewProvider with ChangeNotifier {
     }
   }
 
-  void setCurrent3dModelUrl(String url, BuildContext context) {
+  void setCurrent3dModelUrl(String url) {
     current3dModelUrl = url;
-    print('aaaaaaaaaa' + current3dModelUrl);
-
     Future.microtask(() {
       notifyListeners();
     });
@@ -125,8 +124,6 @@ class ArViewProvider with ChangeNotifier {
 
   Future<void> onPlaneOrPointTapped(
       List<ARHitTestResult> hitTestResults) async {
-    print('bbbbbbbbbbbb' + current3dModelUrl);
-
     var singleHitTestResult = hitTestResults.firstWhere(
         (hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
     var newAnchor =
@@ -153,8 +150,15 @@ class ArViewProvider with ChangeNotifier {
   }
 
   void onNodeTap(List nodeName) {
-    log('onNodeTap');
-    // Your implementation
+    print("Node Tapped: $nodeName");
+    globalNodeName = nodeName.first;
+  }
+
+  void checkObjectSelected(BuildContext context) {
+    if (globalNodeName == null) {
+      ShowSnackBar(context: context)
+          .showErrorSnackBar(message: 'Select an object');
+    }
   }
 
   void removeAnObject() {
@@ -170,23 +174,23 @@ class ArViewProvider with ChangeNotifier {
       double initialYValue, double finalYValue) {
     double changeFactor = 0.004;
     if (initialXValue > finalXValue) {
-      positionChangedInX = positionChangedInX! - changeFactor;
+      positionChangedInX = positionChangedInX - changeFactor;
     } else {
-      positionChangedInX = positionChangedInX! + changeFactor;
+      positionChangedInX = positionChangedInX + changeFactor;
     }
 
     if (initialYValue > finalYValue) {
-      positionChangedInY = positionChangedInY! - changeFactor;
+      positionChangedInY = positionChangedInY - changeFactor;
     } else {
-      positionChangedInY = positionChangedInY! + changeFactor;
+      positionChangedInY = positionChangedInY + changeFactor;
     }
     if (nodes.isNotEmpty) {
       final draggedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);
       draggedNode.position = vectorMath.Vector3(
-        draggedNode.position.x = positionChangedInX!,
+        draggedNode.position.x = positionChangedInX,
         draggedNode.position.y,
-        draggedNode.position.z = positionChangedInY!,
+        draggedNode.position.z = positionChangedInY,
       );
     }
   }
@@ -223,9 +227,9 @@ class ArViewProvider with ChangeNotifier {
 
   void rotateHorizontallyYaxis(double initialYValue, double finalYValue) {
     if (initialYValue > finalYValue) {
-      displacementInX = displacementInX! + .04;
+      displacementInX = displacementInX + .04;
     } else {
-      displacementInX = displacementInX! - .04;
+      displacementInX = displacementInX - .04;
     }
     if (nodes.isNotEmpty) {
       final pannedNode =
