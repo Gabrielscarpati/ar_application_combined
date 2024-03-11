@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:augmented_reality/provider/save_ar_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
@@ -20,58 +21,47 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
 
   ScreenshotController screenshotController = ScreenshotController();
   Uint8List? _imageBytes;
-  String? _modelPath;
-
-  DateTime _previousTime = DateTime.now();
+  bool isLoading = false;
+  final _storage = SaveARProvider.instance;
   List<int> differenceList = [];
+
+  Widget defaultWidget() {
+    return Container();
+  }
+
+  late Widget item = defaultWidget();
+
+  void takeAndMeasureScreenshot(String? filePath) async {
+    try {
+      DateTime startTime = DateTime.now();
+      Uint8List? imageBytes = await screenshotController.capture();
+      DateTime endTime = DateTime.now();
+
+      Duration duration = endTime.difference(startTime);
+      print('Screenshot captured in ${duration.inMilliseconds} milliseconds');
+      print("takeAndMeasureScreenshot: " + "capturou tela");
+      setState(() {
+        _imageBytes = imageBytes;
+      });
+      _storage.setPathModel = filePath!;
+      _storage.setImageBytesImage = imageBytes!;
+    } catch (e) {
+      print(" takeAndMeasureScreenshot: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    void _takeAndMeasureScreenshot(String? filePath) async {
-      try {
-        // Record the start time
-        DateTime startTime = DateTime.now();
-
-        // Capture the screenshot
-        Uint8List? imageBytes = await screenshotController.capture();
-
-        // Record the end time
-        DateTime endTime = DateTime.now();
-
-        Duration duration = endTime.difference(startTime);
-        print('Screenshot captured in ${duration.inMilliseconds} milliseconds');
-
-        setState(() {
-          _imageBytes = imageBytes;
-        });
-        if (filePath != null) {}
-      } catch (e) {
-        print("Error: $e");
-      }
-    }
-
-    void _calculateTimeDifference() {
-      DateTime currentTime = DateTime.now();
-
-      int difference = currentTime.difference(_previousTime).inMilliseconds;
-      differenceList.add(difference);
-      print('Time difference: $differenceList milliseconds');
-    }
-
     return Padding(
       padding: const EdgeInsets.all(12.0),
-      child: Column(
+      child: Stack(
         children: [
           Screenshot(
             controller: screenshotController,
             child: SizedBox(
               height: 150,
               width: 300,
-              child: ModelViewer(
-                backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
-                src: _modelPath ?? 'assets/glb/Duck.glb',
-                alt: 'A 3D model of an astronaut',
-              ),
+              child: item,
             ),
           ),
           Container(
@@ -81,15 +71,30 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                 InkWell(
                   borderRadius: BorderRadius.circular(16),
                   onTap: () async {
-                    final result = await FilePicker.platform.pickFiles();
-                    File file = File(result?.files.single.path ?? "");
-                    setState(() {
-                      _modelPath = file.path;
-                      _modelPath = "file:/${_modelPath!}";
-                    });
-                    print(_modelPath.toString() + "aaaaaaaaa");
-
-                    _takeAndMeasureScreenshot(_modelPath);
+                    try {
+                      final result = await FilePicker.platform.pickFiles();
+                      setState(() {
+                        _imageBytes = null;
+                        isLoading = true;
+                        item = defaultWidget();
+                      });
+                      File file = File(result?.files.single.path ?? "");
+                      setState(() {
+                        item = ModelViewer(
+                          backgroundColor:
+                              const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                          src: "file://${file.path}",
+                          alt: 'A 3D model of an astronaut',
+                        );
+                      });
+                      await Future.delayed(const Duration(seconds: 8));
+                      takeAndMeasureScreenshot(file.path);
+                      setState(() {
+                        isLoading = false;
+                      });
+                    } catch (e) {
+                      print("takeAndMeasureScreenshot: " + e.toString());
+                    }
                   },
                   child: Ink(
                     decoration: BoxDecoration(
@@ -112,6 +117,10 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                 ),
                 const SizedBox(height: 20),
                 _imageBytes != null ? Image.memory(_imageBytes!) : Container(),
+                Visibility(
+                  visible: isLoading,
+                  child: const CircularProgressIndicator(),
+                )
               ],
             ),
           ),

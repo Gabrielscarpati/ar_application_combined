@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:augmented_reality/provider/save_ar_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +11,33 @@ import 'ar_view/ar_view_mobile/ar_view_mobile.dart';
 import 'ar_view/ar_view_web.dart';
 import 'widgets/custom_popup.dart';
 
-class ChooseScreen extends StatelessWidget {
+class ChooseScreen extends StatefulWidget {
   const ChooseScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ChooseScreen> createState() => _ChooseScreenState();
+}
+
+class _ChooseScreenState extends State<ChooseScreen> {
+  final _localModels = SaveARProvider.instance;
+
+  var list = <ModelSavedModel>[];
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadingItens();
+    });
+    super.initState();
+  }
+
+  void loadingItens() async {
+    _localModels.getAllPaths().then((list) {
+      setState(() {
+        this.list = (list);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,9 +45,57 @@ class ChooseScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Choose ar Model'),
       ),
-      body: const Column(
+      body: Column(
         children: [
-          // Your list of ChooseScreenTile widgets here
+          // const ChooseScreenTile(
+          //   title: "Chicken",
+          //   imagePath:
+          //       'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+          // ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: list.length,
+              itemBuilder: (context, index) {
+                final item = list[index];
+                return ChooseScreenTile(
+                  imagePath: item.pathImage,
+                  modelPath: "file://${item.pathModel}",
+                  title: item.key,
+                );
+                // return ListTile(
+                //   onTap: () {
+                //     Navigator.push<void>(
+                //       context,
+                //       MaterialPageRoute<void>(
+                //         builder: (BuildContext context) => CustomPopUp(
+                //           title: 'Model Viewer',
+                //           yesText: 'Save',
+                //           widthYes: 100,
+                //           noText: 'Go Back',
+                //           widthNo: 100,
+                //           body: ModelViewer(
+                //             backgroundColor:
+                //                 const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                //             src: "file://${item.pathModel}",
+                //             alt: 'A 3D model of an astronaut',
+                //             ar: false,
+                //             autoRotate: false,
+                //             disableZoom: true,
+                //           ),
+                //           onPressedNo: () {
+                //             Navigator.pop(context);
+                //           },
+                //           onPressedYes: () async {},
+                //         ),
+                //       ),
+                //     );
+                //   },
+                //   leading: Image.file(File(item.pathImage)),
+                //   title: Text(item.key),
+                // );
+              },
+            ),
+          )
         ],
       ),
       floatingActionButton: SizedBox(
@@ -28,11 +104,12 @@ class ChooseScreen extends StatelessWidget {
           backgroundColor: Colors.blue,
           elevation: 5,
           shape: const CircleBorder(),
-          onPressed: () {
-            Navigator.push(
+          onPressed: () async {
+            await Navigator.push(
               context,
               CupertinoPageRoute(builder: (context) => const AddModelScreen()),
             );
+            loadingItens();
           },
           child: const Icon(Icons.add, color: Colors.white, size: 32),
         ),
@@ -43,14 +120,14 @@ class ChooseScreen extends StatelessWidget {
 
 class ChooseScreenTile extends StatefulWidget {
   final String title;
-  final bool isLocalStorage;
+  final String modelPath;
   final String imagePath;
 
   const ChooseScreenTile({
     super.key,
     required this.title,
-    required this.isLocalStorage,
     required this.imagePath,
+    required this.modelPath,
   });
 
   @override
@@ -69,7 +146,7 @@ class _ChooseScreenTileState extends State<ChooseScreenTile> {
   Widget buildModelViewer() {
     return ModelViewer(
       backgroundColor: const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
-      src: widget.imagePath,
+      src: widget.modelPath,
       alt: 'A 3D model of an astronaut',
       ar: false,
       autoRotate: false,
@@ -144,13 +221,10 @@ class _ChooseScreenTileState extends State<ChooseScreenTile> {
                     onTap: () {
                       popUpChangePassword(context);
                     },
-                    child: IgnorePointer(
-                      ignoring: true,
-                      child: SizedBox(
-                        height: 80,
-                        width: 80,
-                        child: modelViewLocal,
-                      ),
+                    child: SizedBox(
+                      height: 80,
+                      width: 80,
+                      child: Image.file(File(widget.imagePath)),
                     ),
                   ),
                 ],
@@ -168,9 +242,7 @@ class _ChooseScreenTileState extends State<ChooseScreenTile> {
                                 path:
                                     "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
                               )
-                            : ArViewMobile(
-                                isLocalStorage: widget.isLocalStorage,
-                              ),
+                            : ArViewMobile(),
                       ),
                     );
                   },
@@ -178,13 +250,10 @@ class _ChooseScreenTileState extends State<ChooseScreenTile> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Text('AR Model'),
-                      IgnorePointer(
-                        ignoring: true,
-                        child: SizedBox(
-                          height: 80,
-                          width: 80,
-                          child: modelViewLocal,
-                        ),
+                      SizedBox(
+                        height: 80,
+                        width: 80,
+                        child: Image.file(File(widget.imagePath)),
                       ),
                     ],
                   ),

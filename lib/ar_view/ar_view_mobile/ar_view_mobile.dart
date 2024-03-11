@@ -9,10 +9,8 @@ import 'actionButton.dart';
 import 'ar_bottom_sheet.dart';
 
 class ArViewMobile extends StatefulWidget {
-  final bool isLocalStorage;
   const ArViewMobile({
     super.key,
-    required this.isLocalStorage,
   });
   @override
   _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();

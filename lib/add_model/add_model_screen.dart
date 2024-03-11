@@ -1,4 +1,5 @@
 import 'package:augmented_reality/add_model/views/add_model_body_local_storage.dart';
+import 'package:augmented_reality/provider/save_ar_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
@@ -12,7 +13,8 @@ class AddModelScreen extends StatefulWidget {
 }
 
 class _AddModelScreenState extends State<AddModelScreen> {
-  RoundedLoadingButtonController controller = RoundedLoadingButtonController();
+  final controller = RoundedLoadingButtonController();
+  final _storage = SaveARProvider.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -28,8 +30,14 @@ class _AddModelScreenState extends State<AddModelScreen> {
           padding: const EdgeInsets.all(12.0),
           child: LoadingButton(
             buttonText: 'SAVE MODEL',
-            onPressed: () {
-              controller.reset();
+            onPressed: () async {
+              try {
+                _storage.save();
+                controller.reset();
+                print("takeAndMeasureScreenshot: Salvo");
+              } catch (e) {
+                debugPrint(e.toString());
+              }
             },
             controller: controller,
           ),

@@ -19,31 +19,6 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
   Widget build(BuildContext context) {
     LoadModelProvider loadModelProvider = context.watch<LoadModelProvider>();
 
-/*
-    void _takeAndMeasureScreenshot(String? filePath) async {
-      try {
-        // Record the start time
-        DateTime startTime = DateTime.now();
-
-        // Capture the screenshot
-        Uint8List? imageBytes = await screenshotController.capture();
-
-        // Record the end time
-        DateTime endTime = DateTime.now();
-
-        Duration duration = endTime.difference(startTime);
-        print('Screenshot captured in ${duration.inMilliseconds} milliseconds');
-
-        setState(() {
-          _imageBytes = imageBytes;
-        });
-        if (filePath != null) {}
-      } catch (e) {
-        print("Error: $e");
-      }
-    }
-*/
-
     return Stack(
       children: [
         Padding(
