@@ -22,20 +22,14 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
   Uint8List? _imageBytes;
   String? _modelPath;
 
-  DateTime _previousTime = DateTime.now();
   List<int> differenceList = [];
 
   @override
   Widget build(BuildContext context) {
     void _takeAndMeasureScreenshot(String? filePath) async {
       try {
-        // Record the start time
         DateTime startTime = DateTime.now();
-
-        // Capture the screenshot
         Uint8List? imageBytes = await screenshotController.capture();
-
-        // Record the end time
         DateTime endTime = DateTime.now();
 
         Duration duration = endTime.difference(startTime);
@@ -50,17 +44,9 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
       }
     }
 
-    void _calculateTimeDifference() {
-      DateTime currentTime = DateTime.now();
-
-      int difference = currentTime.difference(_previousTime).inMilliseconds;
-      differenceList.add(difference);
-      print('Time difference: $differenceList milliseconds');
-    }
-
     return Padding(
       padding: const EdgeInsets.all(12.0),
-      child: Column(
+      child: Stack(
         children: [
           Screenshot(
             controller: screenshotController,
@@ -68,7 +54,7 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
               height: 150,
               width: 300,
               child: ModelViewer(
-                backgroundColor: Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                backgroundColor: const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
                 src: _modelPath ?? 'assets/glb/Duck.glb',
                 alt: 'A 3D model of an astronaut',
               ),
@@ -87,7 +73,6 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                       _modelPath = file.path;
                       _modelPath = "file:/${_modelPath!}";
                     });
-                    print(_modelPath.toString() + "aaaaaaaaa");
 
                     _takeAndMeasureScreenshot(_modelPath);
                   },

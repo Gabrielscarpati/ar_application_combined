@@ -19,6 +19,12 @@ class ChooseScreen extends StatelessWidget {
       ),
       body: const Column(
         children: [
+          ChooseScreenTile(
+            title: "Chicken",
+            isLocalStorage: false,
+            imagePath:
+                'https://modelviewer.dev/shared-assets/models/Astronaut.glb',
+          ),
           // Your list of ChooseScreenTile widgets here
         ],
       ),

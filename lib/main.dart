@@ -5,8 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'choose_screen.dart';
 
-/*
-* Figure out how to change the objects position*/
 Future<void> main() async {
   runApp(
     MultiProvider(
