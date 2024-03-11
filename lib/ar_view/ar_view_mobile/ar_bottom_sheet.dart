@@ -52,7 +52,7 @@ class _ArBottomSheetState extends State<ArBottomSheet> {
                     return bottomSheetProvider.displayAvailableModelsButton(
                         currentViewModelsList[index].image, () {
                       arMobileViewProvider.setCurrent3dModelUrl(
-                          currentViewModelsList[index].modelUrl, context);
+                          currentViewModelsList[index].modelUrl);
                       bottomSheetProvider.hideAddModelBottomSheet();
                     });
                   },
