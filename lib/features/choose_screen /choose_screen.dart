@@ -24,7 +24,7 @@ class _ChooseScreenState extends State<ChooseScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Choose ar Model'),
+        title: const Text('Ar Models'),
       ),
       body: Column(
         children: [
