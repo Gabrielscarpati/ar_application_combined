@@ -1,7 +1,8 @@
 import 'dart:io';
 
-import 'package:augmented_reality/provider/save_ar_provider.dart';
 import 'package:flutter/material.dart';
+
+import 'add_model_from_internal_storage_provider.dart';
 
 class BottomSheetProvider with ChangeNotifier {
   static final BottomSheetProvider provider = BottomSheetProvider._internal();
@@ -47,7 +48,7 @@ class BottomSheetProvider with ChangeNotifier {
     );
   }
 
-  final saveAR = SaveARProvider.instance;
+  final saveAR = AddModelFromInternalStorageProvider();
 
   List<ModelsListViewModel> modelsListViewModel = [];
 

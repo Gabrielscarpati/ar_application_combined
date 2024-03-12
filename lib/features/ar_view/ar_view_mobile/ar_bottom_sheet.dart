@@ -2,8 +2,8 @@ import 'package:augmented_reality/provider/ar_mobile_view_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../provider/bottom_sheet_provider.dart';
-import '../../widgets/custom_bottom_sheet.dart';
+import '../../../provider/bottom_sheet_provider.dart';
+import '../../../widgets/custom_bottom_sheet.dart';
 
 class ArBottomSheet extends StatefulWidget {
   const ArBottomSheet({super.key});

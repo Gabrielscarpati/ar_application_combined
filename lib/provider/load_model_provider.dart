@@ -37,7 +37,7 @@ class LoadModelProvider with ChangeNotifier {
   Uint8List? imageBytes;
 
   void takeScreenShoot() {
-    Future.delayed(const Duration(milliseconds: 1500), () {
+    Future.delayed(const Duration(milliseconds: 2500), () {
       screenshotController.capture().then((img) {
         imageBytes = img;
         isLoadingAddModelInternet = false;

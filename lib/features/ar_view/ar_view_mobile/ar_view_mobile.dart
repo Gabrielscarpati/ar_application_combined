@@ -3,8 +3,8 @@ import 'package:ar_flutter_plugin/datatypes/config_planedetection.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../provider/ar_mobile_view_provider.dart';
-import '../../provider/bottom_sheet_provider.dart';
+import '../../../provider/ar_mobile_view_provider.dart';
+import '../../../provider/bottom_sheet_provider.dart';
 import 'actionButton.dart';
 import 'ar_bottom_sheet.dart';
 
