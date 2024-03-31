@@ -10,25 +10,25 @@ import '../../widgets/custom_popup.dart';
 import '../ar_view/ar_view_mobile/ar_view_mobile.dart';
 import '../ar_view/ar_view_web.dart';
 
-class ChooseScreenTile extends StatefulWidget {
-  final String modelKey;
+class ChooseScreenTileLocalStorage extends StatefulWidget {
   final String modelPath;
   final String imagePath;
   final Function onPressed;
 
-  const ChooseScreenTile({
+  const ChooseScreenTileLocalStorage({
     super.key,
-    required this.modelKey,
     required this.imagePath,
     required this.modelPath,
     required this.onPressed,
   });
 
   @override
-  _ChooseScreenTileState createState() => _ChooseScreenTileState();
+  _ChooseScreenTileLocalStorageState createState() =>
+      _ChooseScreenTileLocalStorageState();
 }
 
-class _ChooseScreenTileState extends State<ChooseScreenTile> {
+class _ChooseScreenTileLocalStorageState
+    extends State<ChooseScreenTileLocalStorage> {
   late Widget modelViewLocal;
 
   @override

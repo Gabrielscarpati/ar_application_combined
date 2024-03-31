@@ -1,28 +1,28 @@
-import 'package:augmented_reality/features/add_model/views/add_model_body_local_storage.dart';
+import 'package:augmented_reality/features/add_model_QR_code/views/add_model_body_from_QRCode.dart';
+import 'package:augmented_reality/provider/add_model_from_internet_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../provider/add_model_from_internal_storage_provider.dart';
 import '../../widgets/loading_button.dart';
 
-class AddModelScreen extends StatefulWidget {
-  const AddModelScreen({super.key});
+class AddModelScreenQRCode extends StatefulWidget {
+  const AddModelScreenQRCode({super.key});
 
   @override
-  State<AddModelScreen> createState() => _AddModelScreenState();
+  State<AddModelScreenQRCode> createState() => _AddModelScreenQRCodeState();
 }
 
-class _AddModelScreenState extends State<AddModelScreen> {
+class _AddModelScreenQRCodeState extends State<AddModelScreenQRCode> {
   @override
   Widget build(BuildContext context) {
-    AddModelFromInternalStorageProvider modelProvider =
-        Provider.of<AddModelFromInternalStorageProvider>(context, listen: true);
+    AddModelFromInternetProvider modelProvider =
+        Provider.of<AddModelFromInternetProvider>(context, listen: true);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('Add Model'),
       ),
-      body: const AddModelBodyLocalStorage(),
+      body: const AddModelBodyFromQRCOde(),
       bottomNavigationBar: SizedBox(
         height: 80,
         child: Padding(
@@ -30,7 +30,7 @@ class _AddModelScreenState extends State<AddModelScreen> {
           child: LoadingButton(
             buttonText: 'SAVE MODEL',
             onPressed: () async {
-              await modelProvider.checkConditionsSaveModel(context);
+              await modelProvider.checkConditionsSaveModelFirebase(context);
             },
             controller: modelProvider.buttonControllerSaveModel,
           ),

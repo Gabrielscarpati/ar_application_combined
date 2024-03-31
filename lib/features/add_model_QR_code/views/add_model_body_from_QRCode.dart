@@ -5,7 +5,7 @@ import 'package:o3d/o3d.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
-import '../../../provider/load_model_provider.dart';
+import '../../../provider/add_model_from_internet_provider.dart';
 
 class AddModelBodyFromQRCOde extends StatefulWidget {
   const AddModelBodyFromQRCOde({super.key});
@@ -17,7 +17,8 @@ class AddModelBodyFromQRCOde extends StatefulWidget {
 class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
   @override
   Widget build(BuildContext context) {
-    LoadModelProvider loadModelProvider = context.watch<LoadModelProvider>();
+    AddModelFromInternetProvider loadModelProvider =
+        context.watch<AddModelFromInternetProvider>();
 
     return Material(
       child: Stack(
@@ -39,6 +40,7 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                       } else {
                         return Builder(
                           builder: (context) {
+                            loadModelProvider.setModelPath(snapshot.data!);
                             return Screenshot(
                               controller:
                                   loadModelProvider.screenshotController,

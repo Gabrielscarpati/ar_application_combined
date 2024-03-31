@@ -24,7 +24,7 @@ class AddModelFromInternalStorageProvider with ChangeNotifier {
   List<ModelSavedModel> listPaths = <ModelSavedModel>[];
 
   AddModelFromInternalStorageProvider._() {
-    getAllPaths();
+    getAllPathsLocal();
   }
 
   final isLoading = ValueNotifier(false);
@@ -44,7 +44,7 @@ class AddModelFromInternalStorageProvider with ChangeNotifier {
     await _storage.write(key: model.key, value: model.toJson());
   }
 
-  Future<List<ModelSavedModel>> getAllPaths() async {
+  Future<List<ModelSavedModel>> getAllPathsLocal() async {
     final map = await _storage.readAll();
     final result = map.values.map((e) => ModelSavedModel.fromJson(e)).toList();
     listPaths = result;
@@ -131,7 +131,7 @@ class AddModelFromInternalStorageProvider with ChangeNotifier {
       buttonControllerSaveModel.reset();
     } else {
       try {
-        await getAllPaths();
+        await getAllPathsLocal();
         await save();
         buttonControllerSaveModel.reset();
         goBackAddModel(context);

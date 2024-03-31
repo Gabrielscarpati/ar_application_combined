@@ -1,11 +1,16 @@
-import 'package:augmented_reality/ultil%20/future_builder.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../provider/add_model_from_internal_storage_provider.dart';
-import '../add_model/add_model_screen.dart';
-import 'choose_screen_tile.dart';
+import '../../provider/add_model_from_internet_provider.dart';
+import '../../ultil /ds_stream_builder.dart';
+import '../../ultil /future_builder.dart';
+import '../add_model_QR_code/add_model_screen_QR_code.dart';
+import '../entities/model_entity_internet.dart';
+import 'choose_screen_tile_QR_code.dart';
+import 'choose_screen_tile_local_storage.dart';
 
 class ChooseScreen extends StatefulWidget {
   const ChooseScreen({super.key});
@@ -17,10 +22,14 @@ class ChooseScreen extends StatefulWidget {
 class _ChooseScreenState extends State<ChooseScreen> {
   @override
   Widget build(BuildContext context) {
-    AddModelFromInternalStorageProvider modelProvider =
+    AddModelFromInternalStorageProvider addModelFromInternalStorageProvider =
         Provider.of<AddModelFromInternalStorageProvider>(context, listen: true);
 
-    List<ModelSavedModel> listPaths = modelProvider.listPaths;
+    AddModelFromInternetProvider addModelInternetProvider =
+        Provider.of<AddModelFromInternetProvider>(context, listen: true);
+
+    List<ModelSavedModel> listPaths =
+        addModelFromInternalStorageProvider.listPaths;
 
     return Scaffold(
       appBar: AppBar(
@@ -28,33 +37,62 @@ class _ChooseScreenState extends State<ChooseScreen> {
       ),
       body: Column(
         children: [
-          Expanded(
-            child: DSFutureBuilder<List<ModelSavedModel>>(
-              future: modelProvider.getAllPaths(),
-              builder: (context, snapshot) {
-                return ListView.builder(
-                  itemCount: listPaths.length,
-                  itemBuilder: (context, index) {
-                    final item = listPaths[index];
-                    return ChooseScreenTile(
-                      imagePath: item.pathImage,
-                      modelPath: "file://${item.pathModel}",
-                      modelKey: item.key,
-                      onPressed: () async {
-                        await modelProvider.deleteModelByKey(item.key);
-                      },
-                    );
-                  },
-                );
-              },
-              messageWhenEmpty: const Padding(
-                padding:
-                    EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
-                child: Text(
-                    'There are no models saved, click on the + to add a new model.'),
-              ),
-            ),
-          ),
+          !kIsWeb
+              ? Expanded(
+                  child: DSStreamBuilder<List<ModelEntityInternet>>(
+                    stream: addModelInternetProvider.getAllPathsLocal(),
+                    builder: (context, snapshot) {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (context, index) {
+                          final item = snapshot.data![index];
+                          return ChooseScreenTileQRCode(
+                            imagePath: item.imagePath,
+                            modelPath: item.modelPath,
+                            onPressed: () async {
+                              await addModelInternetProvider
+                                  .deleteModelById(item.id);
+                            },
+                          );
+                        },
+                      );
+                    },
+                    messageWhenEmpty: const Padding(
+                      padding: EdgeInsets.only(
+                          top: 16, left: 16, right: 16, bottom: 16),
+                      child: Text(
+                          'There are no models saved, click on the + to add a new model.'),
+                    ),
+                  ),
+                )
+              : Expanded(
+                  child: DSFutureBuilder<List<ModelSavedModel>>(
+                    future:
+                        addModelFromInternalStorageProvider.getAllPathsLocal(),
+                    builder: (context, snapshot) {
+                      return ListView.builder(
+                        itemCount: listPaths.length,
+                        itemBuilder: (context, index) {
+                          final item = listPaths[index];
+                          return ChooseScreenTileLocalStorage(
+                            imagePath: item.pathImage,
+                            modelPath: "file://${item.pathModel}",
+                            onPressed: () async {
+                              await addModelFromInternalStorageProvider
+                                  .deleteModelByKey(item.key);
+                            },
+                          );
+                        },
+                      );
+                    },
+                    messageWhenEmpty: const Padding(
+                      padding: EdgeInsets.only(
+                          top: 16, left: 16, right: 16, bottom: 16),
+                      child: Text(
+                          'There are no models saved, click on the + to add a new model.'),
+                    ),
+                  ),
+                ),
         ],
       ),
       floatingActionButton: SizedBox(
@@ -66,7 +104,8 @@ class _ChooseScreenState extends State<ChooseScreen> {
           onPressed: () async {
             await Navigator.push(
               context,
-              CupertinoPageRoute(builder: (context) => const AddModelScreen()),
+              CupertinoPageRoute(
+                  builder: (context) => const AddModelScreenQRCode()),
             );
           },
           child: const Icon(Icons.add, color: Colors.white, size: 32),

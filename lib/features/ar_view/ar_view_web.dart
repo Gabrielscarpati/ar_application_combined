@@ -7,12 +7,14 @@ class ModelViewWeb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ModelViewer(
-      src: path,
-      alt: "A 3D model of an astronaut",
-      ar: true,
-      cameraControls: true,
-      backgroundColor: Colors.transparent,
+    return Scaffold(
+      body: ModelViewer(
+        src: path,
+        alt: "A 3D model of an astronaut",
+        ar: true,
+        cameraControls: true,
+        backgroundColor: Colors.transparent,
+      ),
     );
   }
 }
