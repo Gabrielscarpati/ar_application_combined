@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:o3d/o3d.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -44,13 +44,13 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                             return Screenshot(
                               controller:
                                   loadModelProvider.screenshotController,
-                              child: O3D(
+                              child: ModelViewer(
                                 backgroundColor: const Color.fromARGB(
                                     0xFF, 0xEE, 0xEE, 0xEE),
                                 src: snapshot.data!,
                                 alt: 'A 3D model of an astronaut',
                                 disableZoom: true,
-                                controller: loadModelProvider.OD3controller,
+                                //controller: loadModelProvider.OD3controller,
                               ),
                             );
                           },
@@ -116,6 +116,7 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                           leading: Icon(Icons.link),
                         ),
                       ),
+                      //addd textfield for the model
                     ),
                   ),
                 ],

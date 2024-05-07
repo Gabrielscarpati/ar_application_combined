@@ -5,14 +5,16 @@ import 'package:provider/provider.dart';
 import '../../provider/add_model_from_internal_storage_provider.dart';
 import '../../widgets/loading_button.dart';
 
-class AddModelScreen extends StatefulWidget {
-  const AddModelScreen({super.key});
+class AddModelScreenLocalStorage extends StatefulWidget {
+  const AddModelScreenLocalStorage({super.key});
 
   @override
-  State<AddModelScreen> createState() => _AddModelScreenState();
+  State<AddModelScreenLocalStorage> createState() =>
+      _AddModelScreenLocalStorageState();
 }
 
-class _AddModelScreenState extends State<AddModelScreen> {
+class _AddModelScreenLocalStorageState
+    extends State<AddModelScreenLocalStorage> {
   @override
   Widget build(BuildContext context) {
     AddModelFromInternalStorageProvider modelProvider =

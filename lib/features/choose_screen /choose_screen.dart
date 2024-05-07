@@ -8,6 +8,7 @@ import '../../provider/add_model_from_internet_provider.dart';
 import '../../ultil /ds_stream_builder.dart';
 import '../../ultil /future_builder.dart';
 import '../add_model_QR_code/add_model_screen_QR_code.dart';
+import '../add_model_internal_storage/add_model_screen_local_storage.dart';
 import '../entities/model_entity_internet.dart';
 import 'choose_screen_tile_QR_code.dart';
 import 'choose_screen_tile_local_storage.dart';
@@ -31,14 +32,14 @@ class _ChooseScreenState extends State<ChooseScreen> {
     List<ModelSavedModel> listPaths =
         addModelFromInternalStorageProvider.listPaths;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Choose ar Model'),
-      ),
-      body: Column(
-        children: [
-          !kIsWeb
-              ? Expanded(
+    return kIsWeb
+        ? Scaffold(
+            appBar: AppBar(
+              title: const Text('Choose ar Model'),
+            ),
+            body: Column(
+              children: [
+                Expanded(
                   child: DSStreamBuilder<List<ModelEntityInternet>>(
                     stream: addModelInternetProvider.getAllPathsLocal(),
                     builder: (context, snapshot) {
@@ -65,7 +66,32 @@ class _ChooseScreenState extends State<ChooseScreen> {
                     ),
                   ),
                 )
-              : Expanded(
+              ],
+            ),
+            floatingActionButton: SizedBox(
+              height: 54,
+              child: FloatingActionButton(
+                backgroundColor: Colors.blue,
+                elevation: 5,
+                shape: const CircleBorder(),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) => const AddModelScreenQRCode()),
+                  );
+                },
+                child: const Icon(Icons.add, color: Colors.white, size: 32),
+              ),
+            ),
+          )
+        : Scaffold(
+            appBar: AppBar(
+              title: const Text('Choose ar Model'),
+            ),
+            body: Column(
+              children: [
+                Expanded(
                   child: DSFutureBuilder<List<ModelSavedModel>>(
                     future:
                         addModelFromInternalStorageProvider.getAllPathsLocal(),
@@ -93,24 +119,25 @@ class _ChooseScreenState extends State<ChooseScreen> {
                     ),
                   ),
                 ),
-        ],
-      ),
-      floatingActionButton: SizedBox(
-        height: 54,
-        child: FloatingActionButton(
-          backgroundColor: Colors.blue,
-          elevation: 5,
-          shape: const CircleBorder(),
-          onPressed: () async {
-            await Navigator.push(
-              context,
-              CupertinoPageRoute(
-                  builder: (context) => const AddModelScreenQRCode()),
-            );
-          },
-          child: const Icon(Icons.add, color: Colors.white, size: 32),
-        ),
-      ),
-    );
+              ],
+            ),
+            floatingActionButton: SizedBox(
+              height: 54,
+              child: FloatingActionButton(
+                backgroundColor: Colors.blue,
+                elevation: 5,
+                shape: const CircleBorder(),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                        builder: (context) =>
+                            const AddModelScreenLocalStorage()),
+                  );
+                },
+                child: const Icon(Icons.add, color: Colors.white, size: 32),
+              ),
+            ),
+          );
   }
 }
