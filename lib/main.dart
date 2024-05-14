@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'features/choose_screen /choose_screen.dart';
+import 'features/choose_screen/choose_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -7,8 +7,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 
-import '../features/choose_screen /choose_screen.dart';
-import '../ultil /snack_bar.dart';
+import '../features/choose_screen/choose_screen.dart';
+import '../ultil/snack_bar.dart';
 
 class AddModelFromInternalStorageProvider with ChangeNotifier {
   static final AddModelFromInternalStorageProvider provider =

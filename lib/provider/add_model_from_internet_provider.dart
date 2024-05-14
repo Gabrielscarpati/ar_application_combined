@@ -10,7 +10,7 @@ import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:screenshot/screenshot.dart';
 
 import '../features/entities/model_entity_internet.dart';
-import '../ultil /snack_bar.dart';
+import '../ultil/snack_bar.dart';
 
 class AddModelFromInternetProvider with ChangeNotifier {
   static final AddModelFromInternetProvider provider =

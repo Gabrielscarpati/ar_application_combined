@@ -5,8 +5,8 @@ import 'package:provider/provider.dart';
 
 import '../../provider/add_model_from_internal_storage_provider.dart';
 import '../../provider/add_model_from_internet_provider.dart';
-import '../../ultil /ds_stream_builder.dart';
-import '../../ultil /future_builder.dart';
+import '../../ultil/ds_stream_builder.dart';
+import '../../ultil/future_builder.dart';
 import '../add_model_QR_code/add_model_screen_QR_code.dart';
 import '../add_model_internal_storage/add_model_screen_local_storage.dart';
 import '../entities/model_entity_internet.dart';
