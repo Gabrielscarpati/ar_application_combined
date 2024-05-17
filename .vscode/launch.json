@@ -1,0 +1,65 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ar_application_combined",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "ar_application_combined (profile mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "ar_application_combined (release mode)",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "ar_flutter_plugin-0.7.3",
+      "cwd": "ar_flutter_plugin-0.7.3",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "ar_flutter_plugin-0.7.3 (profile mode)",
+      "cwd": "ar_flutter_plugin-0.7.3",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "ar_flutter_plugin-0.7.3 (release mode)",
+      "cwd": "ar_flutter_plugin-0.7.3",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    },
+    {
+      "name": "example",
+      "cwd": "ar_flutter_plugin-0.7.3/example",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
+      "name": "example (profile mode)",
+      "cwd": "ar_flutter_plugin-0.7.3/example",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "profile"
+    },
+    {
+      "name": "example (release mode)",
+      "cwd": "ar_flutter_plugin-0.7.3/example",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "release"
+    }
+  ]
+}
