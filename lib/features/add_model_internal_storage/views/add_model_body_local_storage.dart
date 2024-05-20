@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:augmented_reality/ultil/snack_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:o3d/o3d.dart';
+import 'package:path/path.dart' as path;
 import 'package:screenshot/screenshot.dart';
 
 import '../../../provider/add_model_from_internal_storage_provider.dart';
@@ -41,7 +43,7 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
       _storage.setPathModel = filePath!;
       _storage.setImageBytesImage = imageBytes!;
     } catch (e) {
-      print(" takeAndMeasureScreenshot: $e");
+      debugPrint("TakeAndMeasureScreenshot: $e");
     }
   }
 
@@ -74,22 +76,42 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                       isLoading = true;
                       item = defaultWidget();
                     });
-                    File file = File(result?.files.single.path ?? "");
-                    setState(() {
-                      item = ModelViewer(
-                        backgroundColor:
-                            const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
-                        src: "file://${file.path}",
-                        alt: 'A 3D model of an astronaut',
-                      );
-                    });
-                    await Future.delayed(const Duration(seconds: 8));
-                    takeAndMeasureScreenshot(file.path);
+                    if (result != null) {
+                      File file = File(result.files.single.path ?? "");
+                      final typeFile = path.extension(file.path);
+                      // debugPrint("TypeFile: $typeFile");
+                      if (typeFile == ".glb") {
+                        // String fileURL = Uri.file(file.path).toString();
+                        // debugPrint("Print - FileURL: $fileURL");
+                        setState(() {
+                          item = ModelViewer(
+                            backgroundColor:
+                                const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                            src: "file://${file.path}",
+                            alt: 'A 3D model of an astronaut',
+                            ar: true,
+                            autoRotate: true,
+                            cameraControls: true,
+                          );
+                        });
+                        // debugPrint("Print - Item: $item");
+                        await Future.delayed(const Duration(seconds: 3));
+                        takeAndMeasureScreenshot(file.path);
+                      } else {
+                        if(!mounted) return;
+                        ShowSnackBar(context: context, doesItAppearAtTheBottom: true)
+                        .showErrorSnackBar(
+                            message: "Please select a .glb file",
+                        );
+                      }
+                    } else {
+                      debugPrint("FilePicker: No file selected");
+                    }
                     setState(() {
                       isLoading = false;
                     });
                   } catch (e) {
-                    print("takeAndMeasureScreenshot: " + e.toString());
+                    debugPrint("TakeAndMeasureScreenshot: $e");
                   }
                 },
                 child: Ink(
