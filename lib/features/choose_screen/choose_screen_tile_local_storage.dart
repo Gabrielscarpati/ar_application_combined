@@ -43,7 +43,7 @@ class _ChooseScreenTileLocalStorageState
       src: widget.modelPath,
       alt: 'A 3D model of an astronaut',
       ar: false,
-      autoRotate: false,
+      autoRotate: true,
       disableZoom: true,
     );
   }

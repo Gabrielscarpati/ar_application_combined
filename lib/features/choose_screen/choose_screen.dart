@@ -23,14 +23,14 @@ class ChooseScreen extends StatefulWidget {
 class _ChooseScreenState extends State<ChooseScreen> {
   @override
   Widget build(BuildContext context) {
-    AddModelFromInternalStorageProvider addModelFromInternalStorageProvider =
-        Provider.of<AddModelFromInternalStorageProvider>(context, listen: true);
+    // AddModelFromInternalStorageProvider addModelFromInternalStorageProvider =
+    //     Provider.of<AddModelFromInternalStorageProvider>(context, listen: true);
 
     AddModelFromInternetProvider addModelInternetProvider =
         Provider.of<AddModelFromInternetProvider>(context, listen: true);
 
-    List<ModelSavedModel> listPaths =
-        addModelFromInternalStorageProvider.listPaths;
+    // List<ModelSavedModel> listPaths =
+    //     addModelFromInternalStorageProvider.listPaths;
 
     return kIsWeb
         ? Scaffold(
@@ -92,31 +92,43 @@ class _ChooseScreenState extends State<ChooseScreen> {
             body: Column(
               children: [
                 Expanded(
-                  child: DSFutureBuilder<List<ModelSavedModel>>(
-                    future:
-                        addModelFromInternalStorageProvider.getAllPathsLocal(),
-                    builder: (context, snapshot) {
-                      return ListView.builder(
-                        itemCount: listPaths.length,
-                        itemBuilder: (context, index) {
-                          final item = listPaths[index];
-                          return ChooseScreenTileLocalStorage(
-                            imagePath: item.pathImage,
-                            modelPath: "file://${item.pathModel}",
-                            onPressed: () async {
-                              await addModelFromInternalStorageProvider
-                                  .deleteModelByKey(item.key);
+                  child: Consumer<AddModelFromInternalStorageProvider>(
+                    builder: (context, addModelFromInternalStorageProvider, child) {
+                      return DSFutureBuilder<List<ModelSavedModel>>(
+                        future: addModelFromInternalStorageProvider.getAllPathsLocal(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(child: CircularProgressIndicator());
+                          }
+                          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(16),
+                              child: Text(
+                                  'There are no models saved, click on the + to add a new model.'),
+                            );
+                          }
+                          final listPaths = snapshot.data!;
+                          return ListView.builder(
+                            itemCount: listPaths.length,
+                            itemBuilder: (context, index) {
+                              final item = listPaths[index];
+                              return ChooseScreenTileLocalStorage(
+                                imagePath: item.pathImage,
+                                modelPath: "file://${item.pathModel}",
+                                onPressed: () async {
+                                  await addModelFromInternalStorageProvider.deleteModelByKey(item.key);
+                                  setState(() {}); // Force rebuild to update UI
+                                },
+                              );
                             },
                           );
-                        },
+                        }, messageWhenEmpty: const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Text(
+                              'There are no models saved, click on the + to add a new model.'),
+                        ),
                       );
                     },
-                    messageWhenEmpty: const Padding(
-                      padding: EdgeInsets.only(
-                          top: 16, left: 16, right: 16, bottom: 16),
-                      child: Text(
-                          'There are no models saved, click on the + to add a new model.'),
-                    ),
                   ),
                 ),
               ],

@@ -47,6 +47,14 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
     }
   }
 
+  Future<File> renameFile(File file) async {
+    final newFileName = path.basename(file.path).replaceAll(' ', '_');
+    // Tornar o nome do arquivo minusculo
+    final newPath = path.join(path.dirname(file.path), newFileName.toLowerCase());
+    final newFile = await file.rename(newPath);
+    return newFile;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -78,23 +86,19 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                     });
                     if (result != null) {
                       File file = File(result.files.single.path ?? "");
+                      file = await renameFile(file);
                       final typeFile = path.extension(file.path);
-                      // debugPrint("TypeFile: $typeFile");
                       if (typeFile == ".glb") {
-                        // String fileURL = Uri.file(file.path).toString();
-                        // debugPrint("Print - FileURL: $fileURL");
                         setState(() {
                           item = ModelViewer(
                             backgroundColor:
                                 const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
                             src: "file://${file.path}",
                             alt: 'A 3D model of an astronaut',
-                            ar: true,
                             autoRotate: true,
                             cameraControls: true,
                           );
                         });
-                        // debugPrint("Print - Item: $item");
                         await Future.delayed(const Duration(seconds: 3));
                         takeAndMeasureScreenshot(file.path);
                       } else {
