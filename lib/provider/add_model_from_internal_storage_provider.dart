@@ -111,6 +111,12 @@ class AddModelFromInternalStorageProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void clearStorage() {
+    pathModel = '';
+    _imageBytesImage = null;
+    notifyListeners();
+  }
+
   void goBackAddModel(BuildContext context) {
     Navigator.pushAndRemoveUntil(
       context,

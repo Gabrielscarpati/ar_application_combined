@@ -5,7 +5,6 @@ import 'package:augmented_reality/ultil/snack_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
-import 'package:o3d/o3d.dart';
 import 'package:path/path.dart' as path;
 import 'package:screenshot/screenshot.dart';
 
@@ -20,13 +19,11 @@ class AddModelBodyLocalStorage extends StatefulWidget {
 }
 
 class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
-  O3DController controller = O3DController();
-
   ScreenshotController screenshotController = ScreenshotController();
   Uint8List? _imageBytes;
   bool isLoading = false;
   final _storage = AddModelFromInternalStorageProvider();
-  List<int> differenceList = [];
+  String? modelPath;
 
   Widget defaultWidget() {
     return Container();
@@ -34,14 +31,16 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
 
   late Widget item = defaultWidget();
 
-  void takeAndMeasureScreenshot(String? filePath) async {
+  void takeAndMeasureScreenshot(String filePath) async {
     try {
       Uint8List? imageBytes = await screenshotController.capture();
-      setState(() {
-        _imageBytes = imageBytes;
-      });
-      _storage.setPathModel = filePath!;
-      _storage.setImageBytesImage = imageBytes!;
+      if (imageBytes != null) {
+        setState(() {
+          _imageBytes = imageBytes;
+          _storage.setImageBytesImage = imageBytes;
+          _storage.setPathModel = filePath;
+        });
+      }
     } catch (e) {
       debugPrint("TakeAndMeasureScreenshot: $e");
     }
@@ -49,10 +48,58 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
 
   Future<File> renameFile(File file) async {
     final newFileName = path.basename(file.path).replaceAll(' ', '_');
-    // Tornar o nome do arquivo minusculo
-    final newPath = path.join(path.dirname(file.path), newFileName.toLowerCase());
+    final newPath =
+        path.join(path.dirname(file.path), newFileName.toLowerCase());
     final newFile = await file.rename(newPath);
     return newFile;
+  }
+
+  void pickFile() async {
+    try {
+      setState(() {
+        _imageBytes = null;
+        isLoading = true;
+        item = defaultWidget();
+        modelPath = null;
+      });
+      _storage.clearStorage(); // Clear previous storage
+
+      final result = await FilePicker.platform.pickFiles();
+      if (result != null) {
+        File file = File(result.files.single.path ?? "");
+        file = await renameFile(file);
+        final typeFile = path.extension(file.path);
+        if (typeFile == ".glb") {
+          setState(() {
+            item = ModelViewer(
+              backgroundColor: const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+              src: "file://${file.path}",
+              alt: 'A 3D model of an astronaut',
+              autoRotate: true,
+              cameraControls: true,
+            );
+            modelPath = file.path;
+          });
+          await Future.delayed(const Duration(seconds: 3));
+          takeAndMeasureScreenshot(file.path);
+        } else {
+          if (!mounted) return;
+          ShowSnackBar(
+            context: context,
+            doesItAppearAtTheBottom: true,
+          ).showErrorSnackBar(
+            message: "Please select a .glb file",
+          );
+        }
+      } else {
+        debugPrint("FilePicker: No file selected");
+      }
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      debugPrint("PickFile: $e");
+    }
   }
 
   @override
@@ -64,8 +111,8 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
           child: Screenshot(
             controller: screenshotController,
             child: SizedBox(
-              height: 193,
-              width: 200,
+              height: MediaQuery.of(context).size.height * 0.4,
+              width: MediaQuery.of(context).size.width * 0.8,
               child: item,
             ),
           ),
@@ -76,48 +123,7 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
             children: [
               InkWell(
                 borderRadius: BorderRadius.circular(16),
-                onTap: () async {
-                  try {
-                    final result = await FilePicker.platform.pickFiles();
-                    setState(() {
-                      _imageBytes = null;
-                      isLoading = true;
-                      item = defaultWidget();
-                    });
-                    if (result != null) {
-                      File file = File(result.files.single.path ?? "");
-                      file = await renameFile(file);
-                      final typeFile = path.extension(file.path);
-                      if (typeFile == ".glb") {
-                        setState(() {
-                          item = ModelViewer(
-                            backgroundColor:
-                                const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
-                            src: "file://${file.path}",
-                            alt: 'A 3D model of an astronaut',
-                            autoRotate: true,
-                            cameraControls: true,
-                          );
-                        });
-                        await Future.delayed(const Duration(seconds: 3));
-                        takeAndMeasureScreenshot(file.path);
-                      } else {
-                        if(!mounted) return;
-                        ShowSnackBar(context: context, doesItAppearAtTheBottom: true)
-                        .showErrorSnackBar(
-                            message: "Please select a .glb file",
-                        );
-                      }
-                    } else {
-                      debugPrint("FilePicker: No file selected");
-                    }
-                    setState(() {
-                      isLoading = false;
-                    });
-                  } catch (e) {
-                    debugPrint("TakeAndMeasureScreenshot: $e");
-                  }
-                },
+                onTap: () => pickFile(),
                 child: Ink(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -138,24 +144,44 @@ class _AddModelBodyLocalStorageState extends State<AddModelBodyLocalStorage> {
                 ),
               ),
               const SizedBox(height: 20),
-              SizedBox(
-                height: 193,
-                width: 200,
-                child: _imageBytes != null
-                    ? Image.memory(_imageBytes!)
-                    : Container(),
-              ),
-              if (isLoading)
-                const SizedBox(
-                  height: 193,
-                  width: 200,
-                  child: Center(
-                    child: SizedBox(
-                        height: 100,
-                        width: 100,
-                        child: CircularProgressIndicator()),
+              if (_imageBytes != null)
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: ModelViewer(
+                    backgroundColor:
+                        const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                    src: "file://$modelPath",
+                    alt: 'A 3D model',
+                    autoRotate: true,
+                    cameraControls: true,
                   ),
                 )
+              else if (!isLoading && _imageBytes == null)
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: MediaQuery.of(context).size.width * 0.8,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.grey[200],
+                    border: Border.all(color: Colors.grey, width: 1),
+                  ),
+                  child: const Center(
+                    child: Text(
+                      'No image selected',
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                ),
+              if (isLoading)
+                const Expanded(
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
             ],
           ),
         ),
