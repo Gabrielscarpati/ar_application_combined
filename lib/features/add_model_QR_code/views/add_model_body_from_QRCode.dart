@@ -1,8 +1,7 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:provider/provider.dart';
+import 'package:qrcode_reader_web/qrcode_reader_web.dart';
 import 'package:screenshot/screenshot.dart';
 
 import '../../../provider/add_model_from_internet_provider.dart';
@@ -15,6 +14,9 @@ class AddModelBodyFromQRCOde extends StatefulWidget {
 }
 
 class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
+  ScreenshotController screenshotController = ScreenshotController();
+  String? modelPath;
+
   @override
   Widget build(BuildContext context) {
     AddModelFromInternetProvider loadModelProvider =
@@ -50,7 +52,6 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                                 src: snapshot.data!,
                                 alt: 'A 3D model of an astronaut',
                                 disableZoom: true,
-                                //controller: loadModelProvider.OD3controller,
                               ),
                             );
                           },
@@ -68,35 +69,62 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
               color: Colors.white,
               child: Column(
                 children: [
-                  loadModelProvider.isLoadingAddModelInternet
-                      ? const SizedBox(
-                          height: 193,
-                          width: 200,
-                          child: Center(
-                            child: SizedBox(
-                                height: 100,
-                                width: 100,
-                                child: CircularProgressIndicator()),
-                          ),
-                        )
-                      : Container(
-                          height: 193,
-                          width: 200,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              fit: BoxFit.fitWidth,
-                              alignment: FractionalOffset.bottomCenter,
-                              image: MemoryImage(
-                                  loadModelProvider.imageBytes ?? Uint8List(0)),
-                            ),
-                          ),
+                  if (loadModelProvider.imageBytes != null)
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: ModelViewer(
+                        backgroundColor:
+                            const Color.fromARGB(0xFF, 0xEE, 0xEE, 0xEE),
+                        src: loadModelProvider.scannedResult,
+                        alt: 'A 3D model',
+                        autoRotate: true,
+                        cameraControls: true,
+                      ),
+                    )
+                  else if (!loadModelProvider.isLoadingAddModelInternet &&
+                      loadModelProvider.imageBytes == null)
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.4,
+                      width: MediaQuery.of(context).size.width * 0.8,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey, width: 1),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'No image selected',
+                          style: TextStyle(color: Colors.grey),
                         ),
+                      ),
+                    ),
+                  if (loadModelProvider.isLoadingAddModelInternet)
+                    const SizedBox(
+                      height: 193,
+                      width: 200,
+                      child: Center(
+                        child: SizedBox(
+                            height: 100,
+                            width: 100,
+                            child: CircularProgressIndicator()),
+                      ),
+                    ),
                   Padding(
                     padding: const EdgeInsets.only(top: 12.0),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16),
                       onTap: () {
-                        loadModelProvider.scanQRCode(context);
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return _showDialogQRCode(
+                                loadModelProvider, context);
+                          },
+                        );
                       },
                       child: Ink(
                         decoration: BoxDecoration(
@@ -113,10 +141,9 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                         ),
                         child: const ListTile(
                           title: Text('Add Model from QRCode'),
-                          leading: Icon(Icons.link),
+                          leading: Icon(Icons.qr_code),
                         ),
                       ),
-                      //addd textfield for the model
                     ),
                   ),
                 ],
@@ -124,6 +151,32 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  AlertDialog _showDialogQRCode(
+      AddModelFromInternetProvider loadModelProvider, BuildContext context) {
+    return AlertDialog(
+      content: SizedBox(
+        height: 300,
+        width: 300,
+        child: Column(
+          children: [
+            const Text('Scan QR Code'),
+            const SizedBox(height: 20),
+            Expanded(
+              child: QRCodeReaderSquareWidget(
+                onDetect: (QRCodeCapture capture) {
+                  loadModelProvider.scanQRCode(context, capture.raw);
+                  Navigator.pop(context);
+                  setState(() {});
+                },
+                size: 300,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

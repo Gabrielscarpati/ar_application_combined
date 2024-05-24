@@ -1,9 +1,9 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:o3d/o3d.dart';
 import 'package:path/path.dart' as Path;
 import 'package:rounded_loading_button/rounded_loading_button.dart';
@@ -26,11 +26,8 @@ class AddModelFromInternetProvider with ChangeNotifier {
   RoundedLoadingButtonController buttonControllerSaveModel =
       RoundedLoadingButtonController();
   String scannedResult = '';
-  Future<void> scanQRCode(BuildContext context) async {
-    String barcodeScanRes;
+  Future<void> scanQRCode(BuildContext context, String barcodeScanRes) async {
     try {
-      barcodeScanRes = await FlutterBarcodeScanner.scanBarcode(
-          '#ff6666', 'Cancel', true, ScanMode.QR);
       if (!context.mounted) return;
       scannedResult = barcodeScanRes;
       takeScreenShoot();
@@ -63,12 +60,11 @@ class AddModelFromInternetProvider with ChangeNotifier {
   }
 
   void takeScreenShoot() {
-    Future.delayed(const Duration(milliseconds: 2500), () {
-      screenshotController.capture().then((img) {
-        imageBytes = img;
-        isLoadingAddModelInternet = false;
-        notifyListeners();
-      });
+    debugPrint("Print - Enter takeScreenShoot");
+    Future.delayed(const Duration(seconds: 4), () {
+      imageBytes = utf8.encode(scannedResult);
+      isLoadingAddModelInternet = false;
+      notifyListeners();
     });
   }
 

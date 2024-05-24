@@ -115,7 +115,7 @@ class _ChooseScreenTileQRCodeState extends State<ChooseScreenTileQRCode> {
             ],
           ),
           child: Container(
-            height: 100,
+            height: 105,
             margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
             child: Row(
               children: [
