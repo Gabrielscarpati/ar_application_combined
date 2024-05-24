@@ -6,14 +6,14 @@ import 'package:screenshot/screenshot.dart';
 
 import '../../../provider/add_model_from_internet_provider.dart';
 
-class AddModelBodyFromQRCOde extends StatefulWidget {
-  const AddModelBodyFromQRCOde({super.key});
+class AddModelBodyFromQRCode extends StatefulWidget {
+  const AddModelBodyFromQRCode({super.key});
 
   @override
-  State<AddModelBodyFromQRCOde> createState() => _AddModelBodyFromQRCOdeState();
+  State<AddModelBodyFromQRCode> createState() => _AddModelBodyFromQRCodeState();
 }
 
-class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
+class _AddModelBodyFromQRCodeState extends State<AddModelBodyFromQRCode> {
   ScreenshotController screenshotController = ScreenshotController();
   String? modelPath;
 
@@ -69,6 +69,44 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
               color: Colors.white,
               child: Column(
                 children: [
+                  InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return _showDialogQRCode(loadModelProvider, context);
+                        },
+                      );
+                    },
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.08),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const ListTile(
+                        title: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.qr_code),
+                              SizedBox(
+                                  width: 8), // Espaço entre o ícone e o texto
+                              Text('Add Model from QRCode'),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                   if (loadModelProvider.imageBytes != null)
                     Container(
                       height: MediaQuery.of(context).size.height * 0.4,
@@ -113,39 +151,6 @@ class _AddModelBodyFromQRCOdeState extends State<AddModelBodyFromQRCOde> {
                             child: CircularProgressIndicator()),
                       ),
                     ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12.0),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return _showDialogQRCode(
-                                loadModelProvider, context);
-                          },
-                        );
-                      },
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.08),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: const ListTile(
-                          title: Text('Add Model from QRCode'),
-                          leading: Icon(Icons.qr_code),
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),

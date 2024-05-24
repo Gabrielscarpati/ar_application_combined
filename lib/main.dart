@@ -18,8 +18,9 @@ Future<void> main() async {
         appId: "1:984746454319:web:ee0c4606274e7cea3e85da",
         messagingSenderId: "984746454319",
         projectId: "augmented-reality-f92e2",
+        storageBucket: "augmented-reality-f92e2.appspot.com"
       ),
-    );
+    );  
   } else {
     await Firebase.initializeApp();
   }

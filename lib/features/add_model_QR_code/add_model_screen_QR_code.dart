@@ -22,7 +22,7 @@ class _AddModelScreenQRCodeState extends State<AddModelScreenQRCode> {
       appBar: AppBar(
         title: const Text('Add Model'),
       ),
-      body: const AddModelBodyFromQRCOde(),
+      body: const AddModelBodyFromQRCode(),
       bottomNavigationBar: SizedBox(
         height: 80,
         child: Padding(

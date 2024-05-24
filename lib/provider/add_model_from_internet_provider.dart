@@ -60,8 +60,7 @@ class AddModelFromInternetProvider with ChangeNotifier {
   }
 
   void takeScreenShoot() {
-    debugPrint("Print - Enter takeScreenShoot");
-    Future.delayed(const Duration(seconds: 4), () {
+    Future.delayed(const Duration(seconds: 2), () {
       imageBytes = utf8.encode(scannedResult);
       isLoadingAddModelInternet = false;
       notifyListeners();
@@ -132,7 +131,7 @@ class AddModelFromInternetProvider with ChangeNotifier {
         UploadTask uploadTask = firebaseStorageRef.putData(imageBytes!);
         await uploadTask;
         String downloadUrl = await firebaseStorageRef.getDownloadURL();
-        return downloadUrl;
+        return downloadUrl; 
       } catch (e) {
         return '';
       }
