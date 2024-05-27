@@ -6,11 +6,11 @@ class DSFutureBuilder<T> extends StatelessWidget {
   final Widget Function(BuildContext, AsyncSnapshot<T>) builder;
 
   const DSFutureBuilder({
-    Key? key,
+    super.key,
     required this.future,
     required this.builder,
     required this.messageWhenEmpty,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

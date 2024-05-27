@@ -39,15 +39,16 @@ class _AddModelBodyLocalStorageeState extends State<AddModelBodyLocalStoragee> {
       DateTime endTime = DateTime.now();
 
       Duration duration = endTime.difference(startTime);
-      print('Screenshot captured in ${duration.inMilliseconds} milliseconds');
-      print("takeAndMeasureScreenshot: " + "capturou tela");
+      debugPrint(
+          'Screenshot captured in ${duration.inMilliseconds} milliseconds');
+      debugPrint("takeAndMeasureScreenshot: " + "capturou tela");
       setState(() {
         _imageBytes = imageBytes;
       });
       _storage.setPathModel = filePath!;
       _storage.setImageBytesImage = imageBytes!;
     } catch (e) {
-      print(" takeAndMeasureScreenshot: $e");
+      debugPrint(" takeAndMeasureScreenshot: $e");
     }
   }
 
@@ -94,7 +95,7 @@ class _AddModelBodyLocalStorageeState extends State<AddModelBodyLocalStoragee> {
                         isLoading = false;
                       });
                     } catch (e) {
-                      print("takeAndMeasureScreenshot: " + e.toString());
+                      debugPrint("takeAndMeasureScreenshot: $e");
                     }
                   },
                   child: Ink(

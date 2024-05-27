@@ -11,7 +11,7 @@ class AppRoutes {
       BuildContext context, Widget page, Function() thenFunction,
       {bool opaque = true}) {
     Navigator.of(context)
-        .push(new PageRouteBuilder(
+        .push(PageRouteBuilder(
             opaque: opaque, pageBuilder: (BuildContext context, _, __) => page))
         .then((value) {
       thenFunction();
@@ -20,14 +20,14 @@ class AppRoutes {
 
   static void replace(BuildContext context, Widget page) {
     Navigator.of(context).pushReplacement(
-      new MaterialPageRoute(builder: (context) => page),
+      MaterialPageRoute(builder: (context) => page),
     );
   }
 
   static void makeFirst(BuildContext context, Widget page) {
     Navigator.of(context).popUntil((predicate) => predicate.isFirst);
     Navigator.of(context).pushReplacement(
-      new MaterialPageRoute(builder: (context) => page),
+      MaterialPageRoute(builder: (context) => page),
     );
   }
 

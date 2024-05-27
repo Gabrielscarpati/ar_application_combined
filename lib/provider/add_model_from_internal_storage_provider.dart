@@ -140,7 +140,9 @@ class AddModelFromInternalStorageProvider with ChangeNotifier {
         await getAllPathsLocal();
         await save();
         buttonControllerSaveModel.reset();
-        goBackAddModel(context);
+        if (context.mounted) {
+          goBackAddModel(context);
+        }
       } catch (e) {
         debugPrint(e.toString());
       }

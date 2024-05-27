@@ -6,11 +6,11 @@ class DSStreamBuilder<T> extends StatelessWidget {
   final Widget Function(BuildContext, AsyncSnapshot<T>) builder;
 
   const DSStreamBuilder({
-    Key? key,
+    super.key,
     required this.stream,
     required this.builder,
     required this.messageWhenEmpty,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

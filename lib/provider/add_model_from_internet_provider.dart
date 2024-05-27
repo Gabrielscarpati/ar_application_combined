@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:o3d/o3d.dart';
-import 'package:path/path.dart' as Path;
+import 'package:path/path.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -34,12 +34,12 @@ class AddModelFromInternetProvider with ChangeNotifier {
       isLoadingAddModelInternet = true;
       notifyListeners();
     } on Exception catch (e) {
-      print(e);
+      debugPrint('$e');
     }
   }
 
   bool isLoadingAddModelInternet = false;
-  O3DController OD3controller = O3DController();
+  O3DController od3controller = O3DController();
   ModelEntityInternet newModel = ModelEntityInternet(
     imagePath: '',
     modelPath: '',
@@ -71,7 +71,7 @@ class AddModelFromInternetProvider with ChangeNotifier {
     try {
       await _firestore.collection('models').doc(id).delete();
     } catch (e) {
-      print('Error deleting model from Firestore: $e');
+      debugPrint('Error deleting model from Firestore: $e');
     }
   }
 
@@ -95,29 +95,31 @@ class AddModelFromInternetProvider with ChangeNotifier {
 
   Future<void> checkConditionsSaveModelFirebase(BuildContext context) async {
     if (imageBytes == null) {
-      ShowSnackBar(context: context, doesItAppearAtTheBottom: true)
-          .showErrorSnackBar(message: 'No model selected');
       buttonControllerSaveModel.reset();
+      if (context.mounted) {
+        ShowSnackBar(context: context, doesItAppearAtTheBottom: true)
+            .showErrorSnackBar(message: 'No model selected');
+      }
     } else {
-      try {
-        String imagePath = await uploadImage();
-        if (imagePath == '') {
+      String imagePath = await uploadImage();
+      if (imagePath == '') {
+        buttonControllerSaveModel.reset();
+        if (context.mounted) {
           ShowSnackBar(context: context, doesItAppearAtTheBottom: true)
               .showErrorSnackBar(message: 'Error uploading image');
-          buttonControllerSaveModel.reset();
-        } else {
-          setImagePath(imagePath);
+        }
+      } else {
+        setImagePath(imagePath);
+        await addModel(newModel);
+        buttonControllerSaveModel.reset();
+        if (context.mounted) {
           ShowSnackBar(
                   context: context,
                   doesItAppearAtTheBottom: true,
                   color: Colors.blue.withOpacity(.4))
               .showErrorSnackBar(message: 'Model added successfully');
-          await addModel(newModel);
-          buttonControllerSaveModel.reset();
           Navigator.pop(context);
         }
-      } catch (e) {
-        debugPrint(e.toString());
       }
     }
   }
@@ -125,13 +127,13 @@ class AddModelFromInternetProvider with ChangeNotifier {
   Future<String> uploadImage() async {
     if (imageBytes != null) {
       try {
-        String fileName = Path.basename("image3.jpg");
+        String fileName = basename("image3.jpg");
         Reference firebaseStorageRef =
             FirebaseStorage.instance.ref().child(fileName);
         UploadTask uploadTask = firebaseStorageRef.putData(imageBytes!);
         await uploadTask;
         String downloadUrl = await firebaseStorageRef.getDownloadURL();
-        return downloadUrl; 
+        return downloadUrl;
       } catch (e) {
         return '';
       }
@@ -145,7 +147,7 @@ class AddModelFromInternetProvider with ChangeNotifier {
           await _firestore.collection('models').add(model.toJson());
       await docRef.update({'id': docRef.id});
     } catch (e) {
-      print('Error adding model to Firestore: $e');
+      debugPrint('Error adding model to Firestore: $e');
     }
   }
 }

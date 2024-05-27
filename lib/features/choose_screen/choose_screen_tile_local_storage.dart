@@ -23,11 +23,11 @@ class ChooseScreenTileLocalStorage extends StatefulWidget {
   });
 
   @override
-  _ChooseScreenTileLocalStorageState createState() =>
-      _ChooseScreenTileLocalStorageState();
+  ChooseScreenTileLocalStorageState createState() =>
+      ChooseScreenTileLocalStorageState();
 }
 
-class _ChooseScreenTileLocalStorageState
+class ChooseScreenTileLocalStorageState
     extends State<ChooseScreenTileLocalStorage> {
   late Widget modelViewLocal;
 

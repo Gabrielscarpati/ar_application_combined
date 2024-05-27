@@ -11,7 +11,7 @@ import 'package:ar_flutter_plugin/models/ar_anchor.dart';
 import 'package:ar_flutter_plugin/models/ar_hittest_result.dart';
 import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' as vectorMath;
+import 'package:vector_math/vector_math_64.dart';
 
 import '../widgets/custom_snackbar.dart';
 
@@ -134,9 +134,9 @@ class ArViewProvider with ChangeNotifier {
       var newNode = ARNode(
           type: NodeType.webGLB,
           uri: current3dModelUrl,
-          scale: vectorMath.Vector3(0.2, 0.2, 0.2),
-          position: vectorMath.Vector3(0.0, 0.0, 0.0),
-          rotation: vectorMath.Vector4(1.0, 0.0, 0.0, 0.0));
+          scale: Vector3(0.2, 0.2, 0.2),
+          position: Vector3(0.0, 0.0, 0.0),
+          rotation: Vector4(1.0, 0.0, 0.0, 0.0));
       bool? didAddNodeToAnchor =
           await arObjectManager!.addNode(newNode, planeAnchor: newAnchor);
       if (didAddNodeToAnchor!) {
@@ -150,7 +150,7 @@ class ArViewProvider with ChangeNotifier {
   }
 
   void onNodeTap(List nodeName) {
-    print("Node Tapped: $nodeName");
+    debugPrint("Node Tapped: $nodeName");
     globalNodeName = nodeName.first;
   }
 
@@ -187,7 +187,7 @@ class ArViewProvider with ChangeNotifier {
     if (nodes.isNotEmpty) {
       final draggedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);
-      draggedNode.position = vectorMath.Vector3(
+      draggedNode.position = Vector3(
         draggedNode.position.x = positionChangedInX,
         draggedNode.position.y,
         draggedNode.position.z = positionChangedInY,
@@ -203,8 +203,7 @@ class ArViewProvider with ChangeNotifier {
       double nextRotation = (currentRotation - math.pi / 2) % (2 * math.pi);
       nodeRotations[rotatedNode.name] = nextRotation;
 
-      vectorMath.Matrix3 rotationMatrix =
-          vectorMath.Matrix3.rotationY(nextRotation);
+      Matrix3 rotationMatrix = Matrix3.rotationY(nextRotation);
 
       rotatedNode.rotation = rotationMatrix;
     }
@@ -218,8 +217,7 @@ class ArViewProvider with ChangeNotifier {
       double nextRotation = (currentRotation + math.pi / 2) % (2 * math.pi);
       nodeRotations[rotatedNode.name] = nextRotation;
 
-      vectorMath.Matrix3 rotationMatrix =
-          vectorMath.Matrix3.rotationY(nextRotation);
+      Matrix3 rotationMatrix = Matrix3.rotationY(nextRotation);
 
       rotatedNode.rotation = rotationMatrix;
     }
@@ -235,7 +233,7 @@ class ArViewProvider with ChangeNotifier {
       final pannedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);
 
-      pannedNode.rotation = vectorMath.Matrix3.rotationY(displacementInX!);
+      pannedNode.rotation = Matrix3.rotationY(displacementInX);
     }
   }
 
@@ -243,8 +241,7 @@ class ArViewProvider with ChangeNotifier {
     if (nodes.isNotEmpty) {
       final pannedNode =
           nodes.firstWhere((element) => element.name == globalNodeName);
-      pannedNode.scale =
-          vectorMath.Vector3(currentScale, currentScale, currentScale);
+      pannedNode.scale = Vector3(currentScale, currentScale, currentScale);
     }
   }
 }

@@ -54,7 +54,7 @@ class BottomSheetProvider with ChangeNotifier {
 
   List<ModelsListViewModel> getModelsListViewModel() {
     modelsListViewModel.clear();
-    print("aqui: " + saveAR.listPaths.toString());
+    debugPrint('aqui: ${saveAR.listPaths.toString()}');
     for (var element in saveAR.listPaths) {
       modelsListViewModel.add(ModelsListViewModel(
         name: element.key,

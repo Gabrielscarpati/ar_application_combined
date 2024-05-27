@@ -10,7 +10,7 @@ class CustomBottomSheet extends StatelessWidget {
   final bool isScrollable;
 
   const CustomBottomSheet({
-    Key? key,
+    super.key,
     required this.onTapCloseIcon,
     required this.header,
     required this.body,
@@ -18,7 +18,7 @@ class CustomBottomSheet extends StatelessWidget {
     required this.scrollController,
     this.minChildSize,
     this.isScrollable = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -91,14 +91,14 @@ class DSIconButton extends StatelessWidget {
   final VoidCallback onTap;
 
   const DSIconButton({
-    Key? key,
+    super.key,
     required this.color,
     required this.height,
     required this.width,
     required this.iconSize,
     required this.icon,
     required this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +115,7 @@ class DSIconButton extends StatelessWidget {
               color: Colors.grey.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
-              offset: Offset(2, 2), // Shadow position
+              offset: const Offset(2, 2), // Shadow position
             ),
           ],
         ),

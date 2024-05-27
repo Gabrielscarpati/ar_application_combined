@@ -19,10 +19,10 @@ class ChooseScreenTileQRCode extends StatefulWidget {
   });
 
   @override
-  _ChooseScreenTileQRCodeState createState() => _ChooseScreenTileQRCodeState();
+  ChooseScreenTileQRCodeState createState() => ChooseScreenTileQRCodeState();
 }
 
-class _ChooseScreenTileQRCodeState extends State<ChooseScreenTileQRCode> {
+class ChooseScreenTileQRCodeState extends State<ChooseScreenTileQRCode> {
   late Widget modelViewLocal;
 
   @override

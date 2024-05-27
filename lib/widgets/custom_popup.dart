@@ -13,7 +13,7 @@ class CustomPopUp extends StatelessWidget {
   final double? spaceBetweenButtons;
 
   const CustomPopUp({
-    Key? key,
+    super.key,
     required this.title,
     required this.onPressedYes,
     required this.onPressedNo,
@@ -24,7 +24,7 @@ class CustomPopUp extends StatelessWidget {
     required this.noText,
     this.buttonPadding,
     this.spaceBetweenButtons,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

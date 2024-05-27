@@ -13,10 +13,10 @@ class ArViewMobile extends StatefulWidget {
     super.key,
   });
   @override
-  _ObjectGesturesWidgetState createState() => _ObjectGesturesWidgetState();
+  ObjectGesturesWidgetState createState() => ObjectGesturesWidgetState();
 }
 
-class _ObjectGesturesWidgetState extends State<ArViewMobile>
+class ObjectGesturesWidgetState extends State<ArViewMobile>
     with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
